@@ -10,6 +10,25 @@ import edu.warbot.brains.WarBrain;
 import edu.warbot.brains.brains.WarExplorerBrain;
 import edu.warbot.communications.WarMessage;
 
+
+/*
+ * Notes : 
+ * 
+ * il faut s'inscrire avant
+ * 
+ * Le jar doit avoir le même nom que l'équipe
+ * 
+ * Un max de commentaire BIEN ECRITS ET UTILES
+ * 
+ * A rendre : sources + jar
+ * 
+ * Conditions initiales : 
+ * 
+ * 
+ */
+
+
+
 public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
 	public WarExplorerBrainController() {
@@ -83,8 +102,10 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
     	 {
     		 if (w.getType().equals(WarAgentType.WarBase))
     				 {
-    			 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(w.getAngle()), String.valueOf(w.getDistance()));
-    			 		setDebugString("Ennemi base discovered !");
+    			 		double Xa = w.getDistance()*Math.cos(Math.toRadians(w.getAngle()));
+    			 		double Ya = w.getDistance()*Math.sin(Math.toRadians(w.getAngle()));
+    			 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
+    			 		setDebugString("Angle cible : "+w.getAngle());
     			 		return WarExplorer.ACTION_IDLE;
     				 }
     	 }

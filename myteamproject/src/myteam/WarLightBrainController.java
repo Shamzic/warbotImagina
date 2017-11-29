@@ -38,14 +38,29 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 //            setRandomHeading();
 //
 //        return ACTION_MOVE;
+    	
+    	if(isM_etatRush())
+    		this.setDebugString("RUSH");
 
           List<WarMessage> messages = getMessages();
     	  for (WarMessage message : messages) {
               if (message.getMessage().equals("goThere"))
-              {
+              {          	  
             	  this.setM_etatRush(true);
             	  String[] list = message.getContent();
-            	  this.setHeading(Double.parseDouble(list[0])+message.getAngle());
+            	  
+            	  double Xa = Double.parseDouble(list[0]);
+            	  double Ya = Double.parseDouble(list[1]);
+            	  double Xb = message.getDistance()*Math.cos(Math.toRadians(message.getAngle()));
+            	  double Yb = message.getDistance()*Math.sin(Math.toRadians(message.getAngle()));
+
+            	  double Xc = Xa + Xb;
+            	  double Yc = Ya + Yb;
+            	  //double Rc = Math.sqrt(Xc*Xc+Yc*Yc);
+            	  double Tetac = Math.toDegrees(Math.atan(Yc/Xc));
+            	  setDebugString("Angle cible : "+Tetac);
+            	  this.setHeading(Tetac);
+            	  setM_etatRush(true);
               }
           }
     	  
