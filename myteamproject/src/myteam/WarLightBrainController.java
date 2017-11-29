@@ -49,15 +49,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
             	  this.setM_etatRush(true);
             	  String[] list = message.getContent();
             	  
-            	  double Xa = Double.parseDouble(list[0]);
-            	  double Ya = Double.parseDouble(list[1]);
-            	  double Xb = message.getDistance()*Math.cos(Math.toRadians(message.getAngle()));
-            	  double Yb = message.getDistance()*Math.sin(Math.toRadians(message.getAngle()));
-
-            	  double Xc = Xa + Xb;
-            	  double Yc = Ya + Yb;
-            	  //double Rc = Math.sqrt(Xc*Xc+Yc*Yc);
-            	  double Tetac = Math.toDegrees(Math.atan(Yc/Xc));
+            	  double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
             	  setDebugString("Angle cible : "+Tetac);
             	  this.setHeading(Tetac);
             	  setM_etatRush(true);

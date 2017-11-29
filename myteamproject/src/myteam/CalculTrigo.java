@@ -18,6 +18,14 @@ public class CalculTrigo {
 		double yb = DistanceExpeObj*Math.toRadians(Math.sin(AngleExpeObj));
 		double xc = xa + xb;
 		double yc = ya + yb;
-		return Math.toDegrees(Math.atan(yc/xc));
+		return Math.toDegrees(Math.atan2(yc,xc));
+	}
+
+	public static double LogicDegree(double angleObjMe) {
+		double temp = angleObjMe;
+		for(;temp < 0;temp += 360){
+			;
+		}
+		return temp;
 	}
 }
