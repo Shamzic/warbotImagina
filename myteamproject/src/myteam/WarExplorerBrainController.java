@@ -96,23 +96,33 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
     	if (isBlocked()) // Obstacle imprévu
     		setRandomHeading();
     	
-    	for (WarAgentPercept w : getPerceptsEnemies()) 
-    	{
-    		if (w.getType().equals(WarAgentType.WarBase))
-    		{
-    			double Xa = CalculTrigo.abscisseDistanceObj(w.getDistance(),w.getAngle());
-    			double Ya = CalculTrigo.ordonneeDistanceObj(w.getDistance(),w.getAngle());
-    			this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
-    			setDebugString("Angle cible : "+w.getAngle());
-    			return WarExplorer.ACTION_IDLE;
-    		}
-    		
+    	 for (WarAgentPercept w : getPerceptsEnemies()) 
+    	 {
+    		 if (w.getType().equals(WarAgentType.WarBase))
+    				 {
+    			 		double Xa = w.getDistance()*Math.cos(Math.toRadians(w.getAngle()));
+    			 		double Ya = w.getDistance()*Math.sin(Math.toRadians(w.getAngle()));
+    			 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
+    			 		setDebugString("Angle cible : "+w.getAngle());
+    			 		return WarExplorer.ACTION_IDLE;
+    				 }
+    		 if (w.getType().equals(WarAgentType.WarTurret))
+			 {
+		 		double Xa = w.getDistance()*Math.cos(Math.toRadians(w.getAngle()));
+		 		double Ya = w.getDistance()*Math.sin(Math.toRadians(w.getAngle()));
+		 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
+		 		setDebugString("Angle cible : "+w.getAngle());
+		 		setHeading(180);
+		 		return WarExplorer.ACTION_MOVE;
+			 }
+    	 }
+
     		// Ici faire le détour de l'ennemi en arc de cercle
 //    		if (w.getType().equals(WarAgentType.WarLight))
 //    		{
 //    			;
 //    		}
-    	}
+
         return WarExplorer.ACTION_MOVE;
     }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import edu.warbot.agents.enums.WarAgentType;
 import edu.warbot.agents.percepts.WarAgentPercept;
-//import edu.warbot.agents.resources.WarFood;
+import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.brains.WarLightBrain;
 import edu.warbot.communications.WarMessage;
 
