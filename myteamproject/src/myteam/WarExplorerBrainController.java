@@ -108,7 +108,17 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
     			 		setDebugString("Angle cible : "+w.getAngle());
     			 		return WarExplorer.ACTION_IDLE;
     				 }
+    		 if (w.getType().equals(WarAgentType.WarTurret))
+			 {
+		 		double Xa = w.getDistance()*Math.cos(Math.toRadians(w.getAngle()));
+		 		double Ya = w.getDistance()*Math.sin(Math.toRadians(w.getAngle()));
+		 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
+		 		setDebugString("Angle cible : "+w.getAngle());
+		 		setHeading(180);
+		 		return WarExplorer.ACTION_MOVE;
+			 }
     	 }
+    	 
     	
         return WarExplorer.ACTION_MOVE;
     }

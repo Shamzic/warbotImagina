@@ -27,18 +27,12 @@ public abstract class WarTurretBrainController extends WarTurretBrain {
 
         List <WarAgentPercept> percepts = getPercepts();
         for (WarAgentPercept p : percepts) {
-            switch (p.getType()) {
-                case WarRocketLauncher:
-                    if (isEnemy(p)) {
-                        setHeading(p.getAngle());
-                        if (isReloaded()) {
-                            return WarTurret.ACTION_FIRE;
-                        } else
-                            return WarTurret.ACTION_RELOAD;
-                    }
-                    break;
-                default:
-                    break;
+        	if (isEnemy(p)) {
+                setHeading(p.getAngle());
+                if (isReloaded()) {
+                    return WarTurret.ACTION_FIRE;
+                } else
+                    return WarTurret.ACTION_RELOAD;
             }
         }
 

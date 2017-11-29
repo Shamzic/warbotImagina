@@ -39,7 +39,11 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
             _alreadyCreated = true;
             return WarBase.ACTION_CREATE;
         }
-
+        if(getHealth() >= 0.3 * getMaxHealth()){
+        	setNextAgentToCreate(WarAgentType.WarLight);
+        	setDebugString(String.valueOf(getNbElementsInBag()));
+            return WarBase.ACTION_CREATE;
+        }
         if (getNbElementsInBag() >= 0 && getHealth() <= 0.8 * getMaxHealth())
             return WarBase.ACTION_EAT;
 

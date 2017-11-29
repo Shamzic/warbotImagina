@@ -4,6 +4,7 @@ import java.util.List;
 
 import edu.warbot.agents.enums.WarAgentType;
 import edu.warbot.agents.percepts.WarAgentPercept;
+import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.brains.WarLightBrain;
 import edu.warbot.communications.WarMessage;
 
@@ -18,29 +19,6 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 
     @Override
     public String action() {
-
-//        for (WarAgentPercept wp : getPerceptsEnemies()) {
-//
-//            if (!wp.getType().equals(WarAgentType.WarBase) && !wp.getType().equals(WarAgentType.WarFood)) {
-//
-//                setHeading(wp.getAngle());
-//                this.setDebugString("FIRE BITCH");
-//                if (isReloaded())
-//                    return ACTION_FIRE;
-//                else if (isReloading())
-//                    return ACTION_IDLE;
-//                else
-//                    return ACTION_RELOAD;
-//            }
-//        }
-//
-//        if (isBlocked())
-//            setRandomHeading();
-//
-//        return ACTION_MOVE;
-    	
-    	if(isM_etatRush())
-    		this.setDebugString("RUSH");
 
           List<WarMessage> messages = getMessages();
     	  for (WarMessage message : messages) {
@@ -57,11 +35,14 @@ public abstract class WarLightBrainController extends  WarLightBrain {
           }
     	  
     	  if(this.isM_etatRush())
-    	  {
+    	  {this.setDebugString("RUSH");
             for (WarAgentPercept wp : getPerceptsEnemies()) {
-    		  
-    		              if (wp.getType().equals(WarAgentType.WarBase)) {
-    		  
+            				
+    		              if (isEnemy(wp) && !wp.getType().equals(WarAgentType.WarFood)) {
+    		            		double Xa = wp.getDistance()*Math.cos(Math.toRadians(wp.getAngle()));
+    					 		double Ya = wp.getDistance()*Math.sin(Math.toRadians(wp.getAngle()));
+    					 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
+    			             
     		                  setHeading(wp.getAngle());
     		                  this.setDebugString("FIRE BITCH");
     		                  if (isReloaded())
@@ -79,8 +60,31 @@ public abstract class WarLightBrainController extends  WarLightBrain {
     		  
     		  return ACTION_MOVE;
     	  }
-    	  else  
-    		  return ACTION_IDLE;
+    	  else {
+    		  for (WarAgentPercept wp : getPerceptsEnemies()) {
+    	       if (isEnemy(wp) && !wp.getType().equals(WarAgentType.WarFood)) {
+    			  	double Xa = wp.getDistance()*Math.cos(Math.toRadians(wp.getAngle()));
+			 		double Ya = wp.getDistance()*Math.sin(Math.toRadians(wp.getAngle()));
+			 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
+	       
+	                  setHeading(wp.getAngle());
+	                  this.setDebugString("FIRE BITCH");
+	                  if (isReloaded())
+	                      return ACTION_FIRE;
+	                  else if (isReloading())
+	                      return ACTION_IDLE;
+	                  else
+	                      return ACTION_RELOAD;
+	              }
+	          }
+	  
+	          if (isBlocked())
+	              setRandomHeading();
+	  
+	  
+	  return ACTION_MOVE;
+    	  }
+    		  
     }
 
 	public boolean isM_etatRush() {
