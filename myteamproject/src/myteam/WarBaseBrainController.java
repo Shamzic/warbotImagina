@@ -29,8 +29,6 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
     @Override
     public String action() {
     	
-    	setDebugString("Wesh");
-    	
     	if(this.isM_alertMessage())
     		setDebugString("Base ennemie decouverte");
     	if(isM_attacked())
