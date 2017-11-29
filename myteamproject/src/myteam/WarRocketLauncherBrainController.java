@@ -21,6 +21,7 @@ public abstract class WarRocketLauncherBrainController extends WarRocketLauncher
                 setHeading(wp.getAngle());
                 if (isReloaded())
                 {
+                	setTargetDistance(wp.getDistance());
                 	this.setDebugString("FEU !");
                     return ACTION_FIRE;
                 }

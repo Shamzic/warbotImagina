@@ -20,6 +20,15 @@ public class CalculTrigo {
 		double yc = ya + yb;
 		return Math.toDegrees(Math.atan2(yc,xc));
 	}
+	
+	public static double abscisseDistanceObj(double distanceMeTarget,double angle) {
+		return distanceMeTarget*Math.cos(Math.toRadians(angle));
+	}
+	
+	public static double ordonneeDistanceObj(double distanceMeTarget,double angle) {
+		return distanceMeTarget*Math.sin(Math.toRadians(angle));
+	}
+	
 
 	public static double LogicDegree(double angleObjMe) {
 		double temp = angleObjMe;

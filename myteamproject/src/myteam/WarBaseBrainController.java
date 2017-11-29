@@ -84,7 +84,6 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
         return WarBase.ACTION_IDLE;
     }
 
-
 	public boolean is_inDanger() {
 		return _inDanger;
 	}

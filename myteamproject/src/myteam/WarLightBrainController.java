@@ -18,26 +18,6 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 
     @Override
     public String action() {
-
-//        for (WarAgentPercept wp : getPerceptsEnemies()) {
-//
-//            if (!wp.getType().equals(WarAgentType.WarBase) && !wp.getType().equals(WarAgentType.WarFood)) {
-//
-//                setHeading(wp.getAngle());
-//                this.setDebugString("FIRE BITCH");
-//                if (isReloaded())
-//                    return ACTION_FIRE;
-//                else if (isReloading())
-//                    return ACTION_IDLE;
-//                else
-//                    return ACTION_RELOAD;
-//            }
-//        }
-//
-//        if (isBlocked())
-//            setRandomHeading();
-//
-//        return ACTION_MOVE;
     	
     	if(isM_etatRush())
     		this.setDebugString("RUSH");
@@ -48,7 +28,6 @@ public abstract class WarLightBrainController extends  WarLightBrain {
               {          	  
             	  this.setM_etatRush(true);
             	  String[] list = message.getContent();
-            	  
             	  double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
             	  setDebugString("Angle cible : "+Tetac);
             	  this.setHeading(Tetac);
@@ -70,7 +49,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
     		                      return ACTION_IDLE;
     		                  else
     		                      return ACTION_RELOAD;
-    		              }
+    		              }    		              
     		          }
     		  
     		          if (isBlocked())

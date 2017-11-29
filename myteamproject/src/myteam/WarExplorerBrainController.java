@@ -14,16 +14,15 @@ import edu.warbot.communications.WarMessage;
 /*
  * Notes : 
  * 
- * il faut s'inscrire avant
- * 
+ * Il faut s'inscrire avant
  * Le jar doit avoir le même nom que l'équipe
- * 
  * Un max de commentaire BIEN ECRITS ET UTILES
- * 
  * A rendre : sources + jar
  * 
- * Conditions initiales : 
- * 
+ * Comportements à implémenter :
+ * - Récupérer liste de bases ennemies
+ * - Explorateur esquive tous les agents ennemis autres que explorateur
+ * - 
  * 
  */
 
@@ -36,7 +35,6 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
   
 
     }
-
     @Override
     public String action() {
     	ArrayList<WarAgentPercept> percepts = (ArrayList<WarAgentPercept>) getPercepts();
@@ -98,19 +96,23 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
     	if (isBlocked()) // Obstacle imprévu
     		setRandomHeading();
     	
-    	 for (WarAgentPercept w : getPerceptsEnemies()) 
-    	 {
-    		 if (w.getType().equals(WarAgentType.WarBase))
-    				 {
-    			 		double Xa = w.getDistance()*Math.cos(Math.toRadians(w.getAngle()));
-    			 		double Ya = w.getDistance()*Math.sin(Math.toRadians(w.getAngle()));
-    			 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
-    			 		setDebugString("Angle cible : "+w.getAngle());
-    			 		return WarExplorer.ACTION_IDLE;
-    				 }
-    	 }
-    	
+    	for (WarAgentPercept w : getPerceptsEnemies()) 
+    	{
+    		if (w.getType().equals(WarAgentType.WarBase))
+    		{
+    			double Xa = CalculTrigo.abscisseDistanceObj(w.getDistance(),w.getAngle());
+    			double Ya = CalculTrigo.ordonneeDistanceObj(w.getDistance(),w.getAngle());
+    			this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
+    			setDebugString("Angle cible : "+w.getAngle());
+    			return WarExplorer.ACTION_IDLE;
+    		}
+    		
+    		// Ici faire le détour de l'ennemi en arc de cercle
+//    		if (w.getType().equals(WarAgentType.WarLight))
+//    		{
+//    			;
+//    		}
+    	}
         return WarExplorer.ACTION_MOVE;
     }
-
 }
