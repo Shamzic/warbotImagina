@@ -1,5 +1,7 @@
 package myteam;
 
+import java.util.ArrayList;
+
 import edu.warbot.agents.agents.WarBase;
 import edu.warbot.agents.enums.WarAgentType;
 //import edu.warbot.agents.agents.WarBase;
@@ -15,7 +17,9 @@ import edu.warbot.brains.brains.WarBaseBrain;
 import edu.warbot.communications.WarMessage;
 
 public abstract class WarBaseBrainController extends WarBaseBrain {
-
+	Double[] OppBasePos = {-1.0,-1.0};
+	Double[] ActualFoodZone = {-1.0,-1.0};
+	ArrayList<Double[]> FoodPos = new ArrayList<Double[]>();
     //private boolean _alreadyCreated;
 //    private boolean _inDanger;
 //    private boolean m_alertMessage;
@@ -24,7 +28,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 	
     public WarBaseBrainController() {
         super();
-        ctask = listenExplorer;
+        ctask = listen;
       //  _alreadyCreated = false;
 //        set_inDanger(false);
 //        setM_alertMessage(false);
@@ -32,15 +36,12 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
     }
     
     
-	static WTask listenExplorer = new WTask(){
+	static WTask listen = new WTask(){
 		String exec(WarBrain bc){
 			WarBaseBrainController me = (WarBaseBrainController) bc;
 			WarMessage m = me.getMessageFromExplorer();
-			if(m!=null)
-			{
-				me.broadcastMessageToAgentType(WarAgentType.WarExplorer, "I'm here","");
-				me.setDebugString("I'm here!");
-			}
+			me.getMessageFromFighter();
+			me.setDebugString("I'm here!");
 			return WarBase.ACTION_IDLE;
 		}
 	};
@@ -66,10 +67,46 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 		}
 	}
     
+    private WarMessage getMessageFromFighter(){
+    	for (WarMessage m : getMessages()) {
+			String[] listC = m.getContent();
+			if(m.getMessage().equals("Where is the base ?")){
+				reply(m,"base here",Double.toString(OppBasePos[0]),Double.toString(OppBasePos[1]));
+			}
+    	}
+    	return null;
+    }
+    
 	private WarMessage getMessageFromExplorer() {
 		for (WarMessage m : getMessages()) {
-			if(m.getMessage().equals("Where are you?") && m.getSenderType().equals(WarAgentType.WarExplorer))
-				return m;
+			String[] listC = m.getContent();
+			if(m.getMessage().equals("Food here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+				Double[] lastFood = {0.0,0.0};
+				lastFood[0] = CalculTrigo.distanceObjMe(m.getDistance(), m.getAngle(),
+						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
+				lastFood[1] = CalculTrigo.angleObjMe(m.getDistance(), m.getAngle(),
+						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
+				FoodPos.add(lastFood);
+				int i;
+				for(i = 0,ActualFoodZone[0] = 0.0,ActualFoodZone[1] = 0.0;i<FoodPos.size();i++){
+					ActualFoodZone[0]+=FoodPos.get(i)[0];
+					ActualFoodZone[1]+=FoodPos.get(i)[1];
+				}
+				ActualFoodZone[0] /= FoodPos.size();
+				ActualFoodZone[1] /= FoodPos.size();
+			}
+			if(m.getMessage().equals("Base here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+				OppBasePos[0] = CalculTrigo.distanceObjMe(m.getDistance(), m.getAngle(),
+						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
+				OppBasePos[1] = CalculTrigo.angleObjMe(m.getDistance(), m.getAngle(),
+						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
+			}
+			if(m.getMessage().equals("Where are you ?") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+				reply(m,"I'm here","");
+			}
+			if(m.getMessage().equals("Where is the food ?")){
+				reply(m,"base here",Double.toString(ActualFoodZone[0]),Double.toString(ActualFoodZone[1]));
+			}
 		}
 		return null;
 	}
