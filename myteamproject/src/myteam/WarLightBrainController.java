@@ -4,20 +4,23 @@ import java.util.List;
 
 import edu.warbot.agents.enums.WarAgentType;
 import edu.warbot.agents.percepts.WarAgentPercept;
+import edu.warbot.brains.WarBrain;
 //import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.brains.WarLightBrain;
 import edu.warbot.communications.WarMessage;
 
 public abstract class WarLightBrainController extends  WarLightBrain {
-
-	private boolean m_etatRush;
-
-    public WarLightBrainController() {
+	WTask ctask;
+	static WTask handleMsgs = new WTask(){ 
+		String exec(WarBrain bc){
+			return "";
+		}
+		
+    /*public WarLightBrainController() {
         super();
-        this.setM_etatRush(false);
     }
 
-    @Override
+    /*@Override
     public String action() {
 
           List<WarMessage> messages = getMessages();
@@ -89,6 +92,6 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 
 	public void setM_etatRush(boolean m_etatRush) {
 		this.m_etatRush = m_etatRush;
-	}
+	}*/
 
 }
