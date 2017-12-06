@@ -1,16 +1,20 @@
 package myteam;
 
+import java.util.List;
+
+import edu.warbot.agents.enums.WarAgentType;
+import edu.warbot.agents.percepts.WarAgentPercept;
 import edu.warbot.brains.WarBrain;
 //import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.brains.WarLightBrain;
+import edu.warbot.communications.WarMessage;
 
 public abstract class WarLightBrainController extends  WarLightBrain {
 	WTask ctask;
 	static WTask handleMsgs = new WTask(){ 
 		String exec(WarBrain bc){
 			return "";
-		}
-	};
+		};
 		
     /*public WarLightBrainController() {
         super();
