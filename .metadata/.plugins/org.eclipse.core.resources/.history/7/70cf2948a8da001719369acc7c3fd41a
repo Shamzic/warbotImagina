@@ -1,0 +1,6 @@
+package myteam;
+
+public enum EXPLOERER_ENUM {
+	pacificState,
+	UNDERATTACKState
+}

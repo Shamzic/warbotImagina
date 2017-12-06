@@ -1,0 +1,6 @@
+package myteam;
+
+public enum EXPLOENUM {
+	PACIFIC,
+	UNDERATTACK
+}
