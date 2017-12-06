@@ -1,7 +1,10 @@
 package myteam;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
+import edu.warbot.agents.MovableWarAgent;
+import edu.warbot.agents.WarResource;
 import edu.warbot.agents.agents.WarExplorer;
 import edu.warbot.agents.enums.WarAgentType;
 import edu.warbot.agents.percepts.WarAgentPercept;
@@ -28,13 +31,14 @@ import edu.warbot.communications.WarMessage;
 
 
 
+@SuppressWarnings("unused")
 public abstract class WarExplorerBrainController extends WarExplorerBrain  {
-
+/*
 	public WarExplorerBrainController() {
         super();
-  
-
     }
+	
+
     @Override
     public String action() {
     	ArrayList<WarAgentPercept> percepts = (ArrayList<WarAgentPercept>) getPercepts();
@@ -125,4 +129,148 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
         return WarExplorer.ACTION_MOVE;
     }
+    */
+	
+	WTask ctask;
+	static WTask handleMsgs = new WTask(){ 
+		String exec(WarBrain bc){
+			return "";
+		}
+	};
+	
+	static WTask returnFoodTask = new WTask(){
+		String exec(WarBrain bc){
+			WarExplorerBrainController me = (WarExplorerBrainController) bc;
+			if(me.isBagEmpty()){
+				me.setHeading(me.getHeading() + 180);
+
+				me.ctask = getFoodTask;
+				return(null);
+			}
+			me.setDebugStringColor(Color.green.darker());
+			me.setDebugString("Returning Food");
+
+			if(me.isBlocked())
+				me.setRandomHeading();
+
+			ArrayList<WarAgentPercept> basePercepts = (ArrayList<WarAgentPercept>) me.getPerceptsAlliesByType(WarAgentType.WarBase);
+
+				//Si je ne vois pas de base
+			if(basePercepts == null | basePercepts.size() == 0){
+
+				WarMessage m = me.getMessageFromBase();
+					//Si j'ai un message de la base je vais vers elle
+				if(m != null)
+				{
+					me.setDebugString("direction vers la base");
+					me.setHeading(m.getAngle());
+				}
+
+					//j'envoie un message aux bases pour savoir où elle sont..
+				me.setDebugString("Where are you?");
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where are you?", "");
+
+				return(MovableWarAgent.ACTION_MOVE);
+
+				}else{//si je vois une base
+					WarAgentPercept base = basePercepts.get(0);
+					
+					if(base.getDistance() > MovableWarAgent.MAX_DISTANCE_GIVE){
+						me.setHeading(base.getAngle());
+						return(MovableWarAgent.ACTION_MOVE);
+					}
+					else{
+						me.setIdNextAgentToGive(base.getID());
+						return(MovableWarAgent.ACTION_GIVE);
+					}
+					
+				}
+				
+			}
+		};
+		
+		static WTask getFoodTask = new WTask(){
+			String exec(WarBrain bc){
+				WarExplorerBrainController me = (WarExplorerBrainController) bc;
+				if(me.isBagFull()){
+
+					me.ctask = returnFoodTask;
+					return(null);
+				}
+
+				if(me.isBlocked())
+					me.setRandomHeading();
+
+				me.setDebugStringColor(Color.BLACK);
+				me.setDebugString("Searching foooood");
+				
+				
+				ArrayList<WarAgentPercept> percepts = (ArrayList<WarAgentPercept>) me.getPercepts();
+		    
+				for ( WarAgentPercept agtPcpt : percepts)
+		    	{
+		    		switch(agtPcpt.getType()) {
+		    			case WarFood:
+		    				if(!me.isBagFull())
+		    				{
+		    					me.setDebugString("MAIM");
+		    					me.setHeading(agtPcpt.getAngle());
+		    					if(agtPcpt.getDistance()<WarFood.MAX_DISTANCE_TAKE)	
+		    						return WarExplorer.ACTION_TAKE;
+		    					else
+		    						return WarExplorer.ACTION_MOVE;
+		    				}
+					default:
+						break;
+		    		}
+		    	}
+				
+				return WarExplorer.ACTION_MOVE;
+			}
+		
+	};
+	
+	public WarExplorerBrainController() {
+		super();
+		ctask = getFoodTask; // initialisation de la FSM
+	}
+
+	@Override
+	public String action() {
+		
+		// Develop behaviour here
+		
+		String toReturn = ctask.exec(this);   // le run de la FSM
+		
+		if(toReturn == null){
+			if (isBlocked())
+				setRandomHeading();
+			return WarExplorer.ACTION_MOVE;
+		} else {
+			return toReturn;
+		}
+	}
+
+	
+	private WarMessage getMessageAboutFood() {
+		for (WarMessage m : getMessages()) {
+			if(m.getMessage().equals("foodHere"))
+				return m;
+		}
+		return null;
+	}
+	
+	private WarMessage getMessageFromBase() {
+		for (WarMessage m : getMessages()) {
+			if(m.getSenderType().equals(WarAgentType.WarBase))
+				return m;
+		}
+		
+		broadcastMessageToAgentType(WarAgentType.WarBase, "Where are you?", "");
+		return null;
+	}
+	
+	
+	
+	
 }
