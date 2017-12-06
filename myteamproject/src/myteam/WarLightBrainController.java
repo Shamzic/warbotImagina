@@ -38,9 +38,8 @@ public abstract class WarLightBrainController extends  WarLightBrain {
             for (WarAgentPercept wp : getPerceptsEnemies()) {
             				
     		              if (isEnemy(wp) && !wp.getType().equals(WarAgentType.WarFood)) {
-    		            		double Xa = wp.getDistance()*Math.cos(Math.toRadians(wp.getAngle()));
-    					 		double Ya = wp.getDistance()*Math.sin(Math.toRadians(wp.getAngle()));
-    					 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
+    					 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere",
+    					 				String.valueOf(wp.getDistance()), String.valueOf(wp.getAngle()));
     			             
     		                  setHeading(wp.getAngle());
     		                  this.setDebugString("FIRE BITCH");
@@ -62,10 +61,8 @@ public abstract class WarLightBrainController extends  WarLightBrain {
     	  else {
     		  for (WarAgentPercept wp : getPerceptsEnemies()) {
     	       if (isEnemy(wp) && !wp.getType().equals(WarAgentType.WarFood)) {
-    			  	double Xa = wp.getDistance()*Math.cos(Math.toRadians(wp.getAngle()));
-			 		double Ya = wp.getDistance()*Math.sin(Math.toRadians(wp.getAngle()));
-			 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
-	       
+    	    	   this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere",
+			 				String.valueOf(wp.getDistance()), String.valueOf(wp.getAngle()));
 	                  setHeading(wp.getAngle());
 	                  this.setDebugString("FIRE BITCH");
 	                  if (isReloaded())

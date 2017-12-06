@@ -104,18 +104,14 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
     	 {
     		 if (w.getType().equals(WarAgentType.WarBase))
     				 {
-    			 		double Xa = w.getDistance()*Math.cos(Math.toRadians(w.getAngle()));
-    			 		double Ya = w.getDistance()*Math.sin(Math.toRadians(w.getAngle()));
-    			 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
-    			 		setDebugString("Angle cible : "+w.getAngle());
+    			 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere",
+    					 				String.valueOf(wp.getDistance()), String.valueOf(wp.getAngle()));setDebugString("Angle cible : "+w.getAngle());
     			 		return WarExplorer.ACTION_IDLE;
     				 }
     		 if (w.getType().equals(WarAgentType.WarTurret))
 			 {
-		 		double Xa = w.getDistance()*Math.cos(Math.toRadians(w.getAngle()));
-		 		double Ya = w.getDistance()*Math.sin(Math.toRadians(w.getAngle()));
-		 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere", String.valueOf(Xa), String.valueOf(Ya));
-		 		setDebugString("Angle cible : "+w.getAngle());
+		 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere",
+    					 				String.valueOf(wp.getDistance()), String.valueOf(wp.getAngle()));setDebugString("Angle cible : "+w.getAngle());
 		 		setHeading(180);
 		 		return WarExplorer.ACTION_MOVE;
 			 }
@@ -166,7 +162,7 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 					me.setHeading(m.getAngle());
 				}
 
-					//j'envoie un message aux bases pour savoir où elle sont..
+					//j'envoie un message aux bases pour savoir oï¿½ elle sont..
 				me.setDebugString("Where are you?");
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where are you?", "");
 
