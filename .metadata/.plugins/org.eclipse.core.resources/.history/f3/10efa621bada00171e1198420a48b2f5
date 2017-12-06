@@ -37,7 +37,6 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
     
     
 	static WTask listen = new WTask(){
-		@SuppressWarnings("unused")
 		String exec(WarBrain bc){
 			WarBaseBrainController me = (WarBaseBrainController) bc;
 			WarMessage m = me.getMessageFromExplorer();

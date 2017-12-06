@@ -37,7 +37,6 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
     
     
 	static WTask listen = new WTask(){
-		@SuppressWarnings("unused")
 		String exec(WarBrain bc){
 			WarBaseBrainController me = (WarBaseBrainController) bc;
 			WarMessage m = me.getMessageFromExplorer();
@@ -70,7 +69,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
     
     private WarMessage getMessageFromFighter(){
     	for (WarMessage m : getMessages()) {
-			//String[] listC = m.getContent();
+			String[] listC = m.getContent();
 			if(m.getMessage().equals("Where is the base ?")){
 				reply(m,"base here",Double.toString(OppBasePos[0]),Double.toString(OppBasePos[1]));
 			}
