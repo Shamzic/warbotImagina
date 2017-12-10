@@ -63,16 +63,14 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			String[] list = message.getContent();
 			if(message.getMessage().equals("goThere"))
 			{
+				//double previousangle = me.getHeading();
 				double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
+				//double logic = CalculTrigo.LogicDegree(Tetac);
 				me.setDebugString("Etat rush - Angle cible : "+Tetac);
 				me.setHeading(Tetac);
 			}
-			WarAgentPercept wb = detectedEnnemi(me,WarAgentType.WarBase);
-			if(wb!=null)
-			{
-				me.setTarget(wb);
-				me.ctask = attackEnnemiBase;
-			}
+			detectedEnnemi(me,WarAgentType.WarBase);
+			listenMessages(me);
 			return WarLight.ACTION_MOVE;
 		}
 	};
@@ -84,10 +82,9 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 	static WTask attackEnnemiBase = new WTask(){
 		String exec(WarBrain bc){
 			WarLightBrainController me = (WarLightBrainController) bc;
-			WarAgentPercept wb = detectedEnnemi(me,WarAgentType.WarBase);
-			if(wb!=null)
+			detectedEnnemi(me,WarAgentType.WarBase);
+			if(me.getTarget()!=null)
 			{
-				me.setTarget(wb);
 				me.setDebugString("FIRE !");	
 				me.setHeading(me.getTarget().getAngle());
 	             if (me.isReloaded())
@@ -99,7 +96,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			}
 			else
 			{
-		//		me.ctask = waitForInstruction;
+				me.ctask = waitForInstruction;
 			}
 			return ACTION_IDLE;
 		}
@@ -116,14 +113,18 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			}
 		}
 	}
-	
-	static WarAgentPercept detectedEnnemi(WarLightBrainController me, WarAgentType warAgentType) {
+
+	static void detectedEnnemi(WarLightBrainController me, WarAgentType warAgentType) {
+		
 		for (WarAgentPercept wp : me.getPerceptsEnemies()) 
 		{
             if (me.isEnemy(wp) && wp.getType().equals(warAgentType))
-            	return wp;
+            {
+            	System.out.println("detected a base!");
+            	me.setTarget(wp);
+				me.ctask = attackEnnemiBase;
+            }
 		}
-		return null;
 	}
 
 	public void setWarMessage(WarMessage wm) {

@@ -3,6 +3,11 @@
 <fullyQualifiedTypeName name="java.awt.Color"/>
 <fullyQualifiedTypeName name="edu.warbot.agents.MovableWarAgent"/>
 <fullyQualifiedTypeName name="edu.warbot.agents.WarResource"/>
-<fullyQualifiedTypeName name="edu.warbot.agents.agents.WarBase"/>
+<fullyQualifiedTypeName name="myteam.WarExplorerBrainController"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="edu.warbot.communications.WarMessage"/>
+<fullyQualifiedTypeName name="edu.warbot.agents.agents.WarLight"/>
 <fullyQualifiedTypeName name="edu.warbot.agents.enums.WarAgentType"/>
+<fullyQualifiedTypeName name="edu.warbot.agents.agents.WarBase"/>
+<fullyQualifiedTypeName name="edu.warbot.agents.WarAgent"/>
 </qualifiedTypeNameHistroy>

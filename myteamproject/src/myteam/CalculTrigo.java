@@ -14,11 +14,12 @@ public class CalculTrigo {
 	public static double angleObjMe(double DistanceExpeMe,double AngleExpeMe,double DistanceExpeObj,double AngleExpeObj){
 		double xa = DistanceExpeMe*Math.cos(Math.toRadians(AngleExpeMe));
 		double ya = DistanceExpeMe*Math.sin(Math.toRadians(AngleExpeMe));
-		double xb = DistanceExpeMe*Math.cos(Math.toRadians(AngleExpeObj));
-		double yb = DistanceExpeMe*Math.sin(Math.toRadians(AngleExpeObj));
+		double xb = DistanceExpeObj*Math.cos(Math.toRadians(AngleExpeObj));
+		double yb = DistanceExpeObj*Math.sin(Math.toRadians(AngleExpeObj));
 		double xc = xa + xb;
 		double yc = ya + yb;
-		return Math.toDegrees(Math.atan2(yc,xc));
+		//System.out.print("AngleExpeMe : "+AngleExpeMe+", AngleExpeObj"+AngleExpeObj+", angle obtenu : "+LogicDegree(Math.toDegrees(Math.atan2(yc,xc))));
+		return LogicDegree(Math.toDegrees(Math.atan2(yc,xc)));
 	}
 	
 	public static double abscisseDistanceObj(double distanceMeTarget,double angle) {
