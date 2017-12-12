@@ -121,7 +121,7 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 			List<WarMessage> messages = me.getMessages();
 			for (WarMessage message : messages) 
 			{
-				if (message.getMessage().equals("goThere"))
+				if (message.getMessage().equals("Base here"))
 				{
 					me.setWarMessage(message);
 					me.ctask = rushToTheEnnemiBase;
@@ -173,12 +173,6 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 			}
 		};
 		
-		public static void skirt(WarHeavyBrainController me, WarAgentPercept wp) {
-			wp.getDistance();
-			me.setHeading(wp.getAngle());
-			me.ctask = attackEnnemiBase;
-		}
-
 		public void setWarMessage(WarMessage wm) {
 			this.wm= wm;
 		}

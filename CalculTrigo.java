@@ -8,7 +8,7 @@ public class CalculTrigo {
 		double yb = DistanceExpeMe*Math.sin(Math.toRadians(AngleExpeObj));
 		double xc = xa + xb;
 		double yc = ya + yb;
-		return Math.sqrt((xc*xc)/(yc*yc));
+		return Math.sqrt((yc*yc)+(xc*xc));
 	}
 	
 	public static double angleObjMe(double DistanceExpeMe,double AngleExpeMe,double DistanceExpeObj,double AngleExpeObj){
