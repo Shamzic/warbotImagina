@@ -1,239 +1,213 @@
 package pikashot;
 
+import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.jfree.data.statistics.MeanAndStandardDeviation;
+
+import edu.warbot.agents.agents.WarExplorer;
 import edu.warbot.agents.agents.WarLight;
 import edu.warbot.agents.enums.WarAgentType;
 import edu.warbot.agents.percepts.WarAgentPercept;
+import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.WarBrain;
-//import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.brains.WarLightBrain;
 import edu.warbot.communications.WarMessage;
-import pikashot.CalculTrigo;
-import pikashot.WTask;
 
+@SuppressWarnings("unused")
 public abstract class WarLightBrainController extends  WarLightBrain {
-	
-	private WarMessage wm = null;
-	private WarAgentPercept target = null;
-	WTask ctask;
-	
-	static WTask handleMsgs = new WTask() { 
-		String exec(WarBrain bc){
-			return "";
-		} 
-	};
 		
-    public WarLightBrainController() {
-        super();
-        ctask = waitForInstruction; 
-    }
-    
-	@Override
-	public String action() {
-		String toReturn = ctask.exec(this);   // le run de la FSM
-		if(toReturn == null){
-			if (isBlocked())
-				setRandomHeading();
-			return WarLight.ACTION_MOVE;
-		} else {
-			return toReturn;
-		}
-	}
-	
-    /*
-     * ETAT ATTENTE d'INSTRUCTION 
-     * => Des lors qu'il recoit l'ordre de rusher, l'agent  warlight passe en etat rush 
-     */
-	static WTask waitForInstruction = new WTask(){
-		String exec(WarBrain bc){
-			WarLightBrainController me = (WarLightBrainController) bc;
-			listenMessages(me); 
-			me.setDebugString("Waiting for instructions");
-			me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
-			return WarLight.ACTION_IDLE;
-		}
-	};
-	
-    /*
-     * ETAT RUSH
-     * => Des lors qu'il detecte une base ennemie, l'agent passe en etat d'attaque 
-     */
-	static WTask rushToTheEnnemiBase = new WTask(){
-		String exec(WarBrain bc){
-			WarLightBrainController me = (WarLightBrainController) bc;
-			WarMessage message = me.getWarMessage();
-			String[] list = message.getContent();
-			me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
-			if(message.getMessage().equals("Base here"))
-			{	
-				//double previousangle = me.getHeading();
-				double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
-				me.setDebugString("Etat rush - Angle cible : "+Tetac);
-				me.setHeading(Tetac);
-			}
-			if(detectedEnnemi(me,WarAgentType.WarTurret)) {
-				return ACTION_FIRE;
-			}
-			if(detectedEnnemi(me,WarAgentType.WarBase)) {
-				return ACTION_FIRE;
-			}
-			listenMessages(me);
-			if(me.isBlocked())
-				me.setRandomHeading();
-			return WarLight.ACTION_MOVE;
-		}
-	};
-	
-	/*
-     * ETAT D'ATTAQUE
-     * => Attaque l'ennemi dans le champ de vision de l'agent warlight
-     */	
-	static WTask attackEnnemiBase = new WTask(){
-		String exec(WarBrain bc){
-			WarLightBrainController me = (WarLightBrainController) bc;
-			boolean target = (detectedEnnemi(me,WarAgentType.WarBase) || detectedEnnemi(me,WarAgentType.WarTurret));
-			if(target)
+		private WarMessage wm = null;
+		private WarAgentPercept target = null;
+		private int angleSkirt;
+		private boolean montee;
+		WTask ctask;
+		//private boolean m_etatRush =false;
+		static WTask handleMsgs = new WTask() { 
+			String exec(WarBrain bc){
+				return "";
+			} 
+		};
+			
+	    public WarLightBrainController() {
+	        super();
+	        this.angleSkirt = 90;
+	        this.montee=true;
+	        ctask = waitForInstruction; 
+	    }
+	    
+		@Override
+		public String action() {
+			String toReturn = ctask.exec(this);   // le run de la FSM
+			if(toReturn == null)
 			{
-				me.setDebugString("FIRE !");	
-				me.setHeading(me.getTarget().getAngle());
-	             if (me.isReloaded())
-	                 return ACTION_FIRE;
-	             else if (me.isReloading())
-	                 return ACTION_IDLE;
-	             else
-	                 return ACTION_RELOAD;
-			}
+				if (isBlocked())
+					setRandomHeading();
+				setDebugString("Heavy waitinggg ...");
+				
+				return WarLight.ACTION_MOVE;
+			} 
 			else
-				me.ctask = waitForInstruction;
-			return ACTION_IDLE;
+				return toReturn;
 		}
-	};
-    
-	static void listenMessages(WarLightBrainController me) {
-		List<WarMessage> messages = me.getMessages();
-		for (WarMessage message : messages) 
-		{
-			if (message.getMessage().equals("goThere"))
+		
+	    /*
+	     * ETAT ATTENTE d'INSTRUCTION 
+	     * => Des lors qu'il recoit l'ordre de rusher, l'agent  WarLight passe en etat rush 
+	     */
+		static WTask waitForInstruction = new WTask(){
+			String exec(WarBrain bc){
+				WarLightBrainController me = (WarLightBrainController) bc;
+				listenMessages(me); 
+				detectedEnnemi(me,WarAgentType.WarBase);
+				detectedEnnemi(me,WarAgentType.WarLight);
+				me.setDebugString("Waiting for instructions");
+				if(me.isBlocked()){me.setRandomHeading();}
+				return WarLight.ACTION_MOVE;
+			}
+		};
+		
+	    /*
+	     * ETAT RUSH
+	     * => Des lors qu'il detecte une base ennemie, l'agent passe en etat d'attaque 
+	     */
+		static WTask rushToTheEnnemiBase = new WTask(){
+			String exec(WarBrain bc){
+				WarLightBrainController me = (WarLightBrainController) bc;
+				WarMessage message = me.getWarMessage();
+				String[] list = message.getContent();
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
+				if(message.getMessage().equals("goThere"))
+				{
+					double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
+					me.setDebugString("PIKA .... "/*+Tetac*/);
+					me.setHeading(Tetac);
+				}
+				if(detectedEnnemi(me,WarAgentType.WarTurret)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarBase)) {
+					return ACTION_FIRE;
+				}
+				listenMessages(me);
+				if(me.isBlocked())
+					me.setRandomHeading();
+				return WarLight.ACTION_MOVE;
+			}
+		};
+		
+		/*
+	     * ETAT D'ATTAQUE
+	     * => Attaque l'ennemi dans le champ de vision de l'agent WarLight
+	     */	
+		static WTask attackEnnemiBase = new WTask(){
+			String exec(WarBrain bc){
+				WarLightBrainController me = (WarLightBrainController) bc;
+				detectedEnnemi(me,WarAgentType.WarBase);
+				if(me.getTarget()!=null)
+				{
+					me.setDebugString("SHOT !");	
+					me.setHeading(me.getTarget().getAngle());
+		             if (me.isReloaded())
+		                 return ACTION_FIRE;
+		             else if (me.isReloading())
+		                 return ACTION_IDLE;
+		             else
+		                 return ACTION_RELOAD;
+				}
+				else
+				{
+					me.ctask = waitForInstruction;
+				}
+				return ACTION_IDLE;
+			}
+		};
+	    
+		static void listenMessages(WarLightBrainController me) {
+			List<WarMessage> messages = me.getMessages();
+			for (WarMessage message : messages) 
 			{
-				me.setWarMessage(message);
-				me.ctask = rushToTheEnnemiBase;
+				if (message.getMessage().equals("goThere"))
+				{
+					me.setWarMessage(message);
+					me.ctask = rushToTheEnnemiBase;
+				}
 			}
 		}
-	}
 
-	static boolean detectedEnnemi(WarLightBrainController me, WarAgentType warAgentType) {
-		
-		for (WarAgentPercept wp : me.getPerceptsEnemies()) 
-		{
-            if (me.isEnemy(wp) && wp.getType().equals(warAgentType))
-            {
-            	if(warAgentType == WarAgentType.WarBase)
-            	{
-            		System.out.println("detected a base!");
-                	me.setTarget(wp);
-    				me.setHeading(wp.getAngle());
-    				me.ctask = attackEnnemiBase;
-            	}
-            	else if(warAgentType == WarAgentType.WarHeavy)
-            	{
-            		System.out.println("detected an Heavy ennemi");
-            	}
-            	return true;
-            }
+		static boolean detectedEnnemi(WarLightBrainController me, WarAgentType warAgentType) {
+			
+			for (WarAgentPercept wp : me.getPerceptsEnemies()) 
+			{
+	            if (me.isEnemy(wp) && wp.getType().equals(warAgentType))
+	            {
+	            	me.setDebugStringColor(Color.orange.darker());
+	            	if(wp.getType() == WarAgentType.WarBase)
+	            	{
+	            		me.setDebugString("Detected ennemi base");
+		            	me.setTarget(wp);
+						me.ctask = attackEnnemiBase;
+						return true;
+	            	}
+	            	else if(wp.getType() == WarAgentType.WarLight)
+	            	{
+	            		me.setDebugString("Detected ennemi heavy");
+	            		me.setTarget(wp);
+	            		me.ctask = attackEnnemiBase;
+	            		return true;
+	            	}else if(wp.getType() == WarAgentType.WarHeavy || wp.getType() == WarAgentType.WarTurret) 
+	            	{
+	            		me.setDebugString("Detected ennemi heavy");
+	            		me.setTarget(wp);
+	            		me.ctask = skirtEnnemiInCircle;
+	            	}
+	         
+	            }
+			}
+			return false;
 		}
-		return false;
-	}
+		
+		static WTask skirtEnnemiInCircle = new WTask(){
+			String exec(WarBrain bc){
+				WarLightBrainController me = (WarLightBrainController) bc;
+				WarAgentPercept cibleToskirt = me.getTarget();
+				me.setHeading(CalculTrigo.LogicDegree(me.angleSkirt+cibleToskirt.getAngle()));
+				if(me.montee)
+				{
+					me.angleSkirt--;
+					if(me.angleSkirt==0)
+						me.montee=false;
+				}
+				else	
+				{
+					me.angleSkirt=90;
+					me.montee=true;
+					me.ctask= waitForInstruction; 
+				}
+			return ACTION_MOVE;
+			}
+		};
+		
+		public static void skirt(WarLightBrainController me, WarAgentPercept wp) {
+			wp.getDistance();
+			me.setHeading(wp.getAngle());
+			me.ctask = attackEnnemiBase;
+		}
 
-	public void setWarMessage(WarMessage wm) {
-		this.wm= wm;
-	}
-	
-	public WarMessage getWarMessage() {
-		return wm;
-	}
+		public void setWarMessage(WarMessage wm) {
+			this.wm= wm;
+		}
+		
+		public WarMessage getWarMessage() {
+			return wm;
+		}
 
-	public WarAgentPercept getTarget() {
-		return target;
-	}
+		public WarAgentPercept getTarget() {
+			return target;
+		}
 
-	public void setTarget(WarAgentPercept wb) {
-		this.target = wb;
-	}
-    
-//
-//    @Override
-//    public String action() {
-//
-//          List<WarMessage> messages = getMessages();
-//    	  for (WarMessage message : messages) {
-//              if (message.getMessage().equals("goThere"))
-//              {          	  
-//            	  this.setM_etatRush(true);
-//            	  String[] list = message.getContent();
-//            	  double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
-//            	  setDebugString("Angle cible : "+Tetac);
-//            	  this.setHeading(Tetac);
-//            	  setM_etatRush(true);
-//              }
-//          }
-//    	  
-//    	  if(this.isM_etatRush())
-//    	  {this.setDebugString("RUSH");
-//            for (WarAgentPercept wp : getPerceptsEnemies()) {
-//            				
-//    		              if (isEnemy(wp) && !wp.getType().equals(WarAgentType.WarFood)) {
-//    					 		this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere",
-//    					 				String.valueOf(wp.getDistance()), String.valueOf(wp.getAngle()));
-//    			             
-//    		                  setHeading(wp.getAngle());
-//    		                  this.setDebugString("FIRE BITCH");
-//    		                  if (isReloaded())
-//    		                      return ACTION_FIRE;
-//    		                  else if (isReloading())
-//    		                      return ACTION_IDLE;
-//    		                  else
-//    		                      return ACTION_RELOAD;
-//    		              }    		              
-//    		          }
-//    		  
-//    		          if (isBlocked())
-//    		              setRandomHeading();
-//    		  
-//    		  
-//    		  return ACTION_MOVE;
-//    	  }
-//    	  else {
-//    		  for (WarAgentPercept wp : getPerceptsEnemies()) {
-//    	       if (isEnemy(wp) && !wp.getType().equals(WarAgentType.WarFood)) {
-//    	    	   this.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere",
-//			 				String.valueOf(wp.getDistance()), String.valueOf(wp.getAngle()));
-//	                  setHeading(wp.getAngle());
-//	                  this.setDebugString("FIRE BITCH");
-//	                  if (isReloaded())
-//	                      return ACTION_FIRE;
-//	                  else if (isReloading())
-//	                      return ACTION_IDLE;
-//	                  else
-//	                      return ACTION_RELOAD;
-//	              }
-//	          }
-//	  
-//	          if (isBlocked())
-//	              setRandomHeading();
-//	  
-//	  
-//	  return ACTION_MOVE;
-//    	  }
-//    		  
-//    }
-//
-//	public boolean isM_etatRush() {
-//		return this.m_etatRush ;
-//	}
-//
-//	public void setM_etatRush(boolean m_etatRush) {
-//		this.m_etatRush = m_etatRush;
-//	}
-
+		public void setTarget(WarAgentPercept wb) {
+			this.target = wb;
+		}
 }
