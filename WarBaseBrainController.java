@@ -2,6 +2,7 @@ package pikashot;
 
 import java.util.ArrayList;
 
+
 import edu.warbot.agents.agents.WarBase;
 import edu.warbot.agents.enums.WarAgentType;
 //import edu.warbot.agents.agents.WarBase;
@@ -22,6 +23,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 	ArrayList<Double[]> FoodPos = new ArrayList<Double[]>();
 	ArrayList<Double[]> TurretPos = new ArrayList<Double[]>();
 	WTask ctask; // FSM
+	ArrayList<WarAgentType> agentListInit = new ArrayList<WarAgentType>();
 	
     public WarBaseBrainController() {
         super();
@@ -35,14 +37,23 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 			WarBaseBrainController me = (WarBaseBrainController) bc;
 			WarMessage m = me.getMessageFromExplorer();
 			m = me.getMessageFromFighter();
-			/*if(me.getNbElementsInBag() >= 0 && me.getHealth() >= 0.3 * me.getMaxHealth()){
-				me.setNextAgentToCreate(WarAgentType.WarHeavy);
-				me.setDebugString(String.valueOf(me.getNbElementsInBag()));
+			addAgent(me,WarAgentType.WarLight,5);
+			addAgent(me,WarAgentType.WarExplorer,5);
+			addAgent(me,WarAgentType.WarHeavy,5);
+			while(me.getNbElementsInBag() >= 0 && me.getHealth() >= 0.3 * me.getMaxHealth())
+			{
+				me.setNextAgentToCreate(me.agentListInit.get(0));
+				me.agentListInit.remove(0);
 				return WarBase.ACTION_CREATE;
-			}*/
+			}
 			return ACTION_IDLE;
 		}
-		};
+	};
+	
+	static void addAgent(WarBaseBrainController me, WarAgentType type, int number) {
+		for(int i=0; i<number; i++)
+			me.agentListInit.add(type);
+	};
     
     static WTask handleMsgs = new WTask(){ String exec(WarBrain bc){return "";}};
     
@@ -72,7 +83,8 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 	private WarMessage getMessageFromExplorer() {
 		for (WarMessage m : getMessages()) {
 			String[] listC = m.getContent();
-			if(m.getMessage().equals("Food here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+			if(m.getMessage().equals("Food here") && m.getSenderType().equals(WarAgentType.WarExplorer))
+			{
 				Double[] lastFood = {0.0,0.0};
 				lastFood[0] = CalculTrigo.distanceObjMe(m.getDistance(), m.getAngle(),
 						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
@@ -80,7 +92,8 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
 				FoodPos.add(lastFood);
 				int i;
-				for(i = 0,ActualFoodZone[0] = 0.0,ActualFoodZone[1] = 0.0;i<FoodPos.size();i++){
+				for(i = 0,ActualFoodZone[0] = 0.0,ActualFoodZone[1] = 0.0;i<FoodPos.size();i++)
+				{
 					ActualFoodZone[0]+=FoodPos.get(i)[0];
 					ActualFoodZone[1]+=FoodPos.get(i)[1];
 				}
@@ -96,6 +109,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 				TurretPos.add(TurretFood);
 			}
 			if(m.getMessage().equals("Base here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+
 				OppBasePos[0] = CalculTrigo.distanceObjMe(m.getDistance(), m.getAngle(),
 						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
 				OppBasePos[1] = CalculTrigo.angleObjMe(m.getDistance(), m.getAngle(),
