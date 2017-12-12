@@ -77,16 +77,23 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 				WarHeavyBrainController me = (WarHeavyBrainController) bc;
 				WarMessage message = me.getWarMessage();
 				String[] list = message.getContent();
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
 				if(message.getMessage().equals("goThere"))
 				{
 					double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
 					me.setDebugString("PIKA .... "/*+Tetac*/);
 					me.setHeading(Tetac);
 				}
-				detectedEnnemi(me,WarAgentType.WarBase);
-				detectedEnnemi(me,WarAgentType.WarHeavy);
+				if(detectedEnnemi(me,WarAgentType.WarTurret)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarBase)) {
+					return ACTION_FIRE;
+				}
 				listenMessages(me);
-				return ACTION_MOVE;
+				if(me.isBlocked())
+					me.setRandomHeading();
+				return WarHeavy.ACTION_MOVE;
 			}
 		};
 		
@@ -129,27 +136,30 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 			}
 		}
 
-		static void detectedEnnemi(WarHeavyBrainController me, WarAgentType warAgentType) {
+		static boolean detectedEnnemi(WarHeavyBrainController me, WarAgentType warAgentType) {
 			
 			for (WarAgentPercept wp : me.getPerceptsEnemies()) 
 			{
 	            if (me.isEnemy(wp) && wp.getType().equals(warAgentType))
 	            {
 	            	me.setDebugStringColor(Color.orange.darker());
-	            	if(wp.getType() == WarAgentType.WarBase)
+	            	if(wp.getType() == WarAgentType.WarBase || wp.getType() == WarAgentType.WarBase)
 	            	{
 	            		me.setDebugString("Detected ennemi base");
 		            	me.setTarget(wp);
 						me.ctask = attackEnnemiBase;
+						return true;
 	            	}
-	            	else if(wp.getType() == WarAgentType.WarHeavy)
+	            	else if(wp.getType() == WarAgentType.WarHeavy || wp.getType() == WarAgentType.WarLight)
 	            	{
 	            		me.setDebugString("Detected ennemi heavy");
 	            		me.setTarget(wp);
-	            		me.ctask = skirtEnnemiInCircle;
+	            		me.ctask = attackEnnemiBase;
+	            		return true;
 	            	}
 	            }
 			}
+			return false;
 		}
 		
 		static WTask skirtEnnemiInCircle = new WTask(){
