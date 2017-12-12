@@ -119,13 +119,16 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	static WTask searchFoodTask = new WTask(){
 		String exec(WarBrain bc){
 			WarExplorerBrainController me = (WarExplorerBrainController) bc;
-			if(ennemiBaseDetection(me))
-				return WarExplorer.ACTION_IDLE;
+			if(ennemiBaseDetection(me)) 
+			{
+				me.setHeading((me.getHeading()+180)%360);
+				return WarExplorer.ACTION_MOVE;
+			}
 
 			if(me.isBagFull())
 			{
 				me.ctask = returnFoodTask;
-				return(null);
+				return ACTION_IDLE;
 			}
 
 			if(me.isBlocked())
@@ -195,10 +198,6 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 				System.out.println("Base detected");
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Base here",
 						String.valueOf(w.getDistance()), String.valueOf(w.getAngle()));
-				me.broadcastMessageToAgentType(WarAgentType.WarLight, "Base here",
-						String.valueOf(w.getDistance()), String.valueOf(w.getAngle()));
-				me.broadcastMessageToAgentType(WarAgentType.WarHeavy, "goThere",
-						String.valueOf(w.getDistance()), String.valueOf(w.getAngle()));
 				me.setDebugStringColor(Color.RED);
 				me.setDebugString("BASE FOUNDED ! Target angle : "+w.getAngle());
 				return true;
@@ -209,7 +208,7 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
 	private WarMessage getMessageAboutFood() {
 		for (WarMessage m : getMessages()) {
-			if(m.getMessage().equals("foodHere"))
+			if(m.getMessage().equals("Food here"))
 				return m;
 		}
 		return null;
