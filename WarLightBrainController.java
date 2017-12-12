@@ -9,13 +9,15 @@ import edu.warbot.brains.WarBrain;
 //import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.brains.WarLightBrain;
 import edu.warbot.communications.WarMessage;
+import pikashot.CalculTrigo;
+import pikashot.WTask;
 
 public abstract class WarLightBrainController extends  WarLightBrain {
 	
 	private WarMessage wm = null;
 	private WarAgentPercept target = null;
 	WTask ctask;
-	//private boolean m_etatRush =false;
+	
 	static WTask handleMsgs = new WTask() { 
 		String exec(WarBrain bc){
 			return "";
@@ -48,6 +50,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			WarLightBrainController me = (WarLightBrainController) bc;
 			listenMessages(me); 
 			me.setDebugString("Waiting for instructions");
+			me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
 			return WarLight.ACTION_IDLE;
 		}
 	};
@@ -61,16 +64,23 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			WarLightBrainController me = (WarLightBrainController) bc;
 			WarMessage message = me.getWarMessage();
 			String[] list = message.getContent();
-			if(message.getMessage().equals("goThere"))
-			{
+			me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
+			if(message.getMessage().equals("Base here"))
+			{	
 				//double previousangle = me.getHeading();
 				double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
-				//double logic = CalculTrigo.LogicDegree(Tetac);
 				me.setDebugString("Etat rush - Angle cible : "+Tetac);
 				me.setHeading(Tetac);
 			}
-			detectedEnnemi(me,WarAgentType.WarBase);
+			if(detectedEnnemi(me,WarAgentType.WarTurret)) {
+				return ACTION_FIRE;
+			}
+			if(detectedEnnemi(me,WarAgentType.WarBase)) {
+				return ACTION_FIRE;
+			}
 			listenMessages(me);
+			if(me.isBlocked())
+				me.setRandomHeading();
 			return WarLight.ACTION_MOVE;
 		}
 	};
@@ -82,8 +92,8 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 	static WTask attackEnnemiBase = new WTask(){
 		String exec(WarBrain bc){
 			WarLightBrainController me = (WarLightBrainController) bc;
-			detectedEnnemi(me,WarAgentType.WarBase);
-			if(me.getTarget()!=null)
+			boolean target = (detectedEnnemi(me,WarAgentType.WarBase) || detectedEnnemi(me,WarAgentType.WarTurret));
+			if(target)
 			{
 				me.setDebugString("FIRE !");	
 				me.setHeading(me.getTarget().getAngle());
@@ -95,9 +105,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 	                 return ACTION_RELOAD;
 			}
 			else
-			{
 				me.ctask = waitForInstruction;
-			}
 			return ACTION_IDLE;
 		}
 	};
@@ -114,17 +122,27 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 		}
 	}
 
-	static void detectedEnnemi(WarLightBrainController me, WarAgentType warAgentType) {
+	static boolean detectedEnnemi(WarLightBrainController me, WarAgentType warAgentType) {
 		
 		for (WarAgentPercept wp : me.getPerceptsEnemies()) 
 		{
             if (me.isEnemy(wp) && wp.getType().equals(warAgentType))
             {
-            	System.out.println("detected a base!");
-            	me.setTarget(wp);
-				me.ctask = attackEnnemiBase;
+            	if(warAgentType == WarAgentType.WarBase)
+            	{
+            		System.out.println("detected a base!");
+                	me.setTarget(wp);
+    				me.setHeading(wp.getAngle());
+    				me.ctask = attackEnnemiBase;
+            	}
+            	else if(warAgentType == WarAgentType.WarHeavy)
+            	{
+            		System.out.println("detected an Heavy ennemi");
+            	}
+            	return true;
             }
 		}
+		return false;
 	}
 
 	public void setWarMessage(WarMessage wm) {

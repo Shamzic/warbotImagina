@@ -13,6 +13,7 @@ import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.WarBrain;
 import edu.warbot.brains.brains.WarExplorerBrain;
 import edu.warbot.communications.WarMessage;
+import myteam.CalculTrigo;
 
 
 /*
@@ -52,13 +53,14 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	@Override
 	public String action() {
 		String toReturn = ctask.exec(this);   // le run de la FSM
-		if(toReturn == null){
+		if(toReturn == null)
+		{
 			if (isBlocked())
 				setRandomHeading();
 			return WarExplorer.ACTION_MOVE;
-		} else {
+		} 
+		else
 			return toReturn;
-		}
 	}
 
 	static WTask returnFoodTask = new WTask(){
@@ -79,8 +81,12 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 			ArrayList<WarAgentPercept> basePercepts = (ArrayList<WarAgentPercept>) me.getPerceptsAlliesByType(WarAgentType.WarBase);
 
 			//Si je ne vois pas de base
-			if(basePercepts == null | basePercepts.size() == 0){
-
+			if(basePercepts == null | basePercepts.size() == 0)
+			{
+				//j'envoie un message aux bases alliées pour savoir ou elles sont..
+				me.setDebugString("Where are you?");
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where are you?", "");
+				
 				WarMessage m = me.getMessageFromBase();
 				//Si j'ai un message de la base je vais vers elle
 				if(m != null)
@@ -124,6 +130,21 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
 			if(me.isBlocked())
 				me.setRandomHeading();
+			/* Ajout 12/12/17 */
+			
+			ArrayList<WarAgentPercept> basePercepts = (ArrayList<WarAgentPercept>) me.getPerceptsAlliesByType(WarAgentType.WarBase);
+			if(basePercepts != null && basePercepts.size() !=0) {
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the food ?", "");
+			}
+			
+			WarMessage message = me.getMessageAboutFood();
+			if(message != null) {
+				String[] list = message.getContent();
+				double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
+				me.setHeading(Tetac);
+			}
+			
+			/* fin ajout  */
 
 			me.setDebugStringColor(Color.BLACK);
 			me.setDebugString("Searching foooood");
@@ -172,10 +193,14 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 			if (w.getType().equals(WarAgentType.WarBase))
 			{
 				System.out.println("Base detected");
-				me.broadcastMessageToAgentType(WarAgentType.WarLight, "goThere",
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Base here",
+						String.valueOf(w.getDistance()), String.valueOf(w.getAngle()));
+				me.broadcastMessageToAgentType(WarAgentType.WarLight, "Base here",
+						String.valueOf(w.getDistance()), String.valueOf(w.getAngle()));
+				me.broadcastMessageToAgentType(WarAgentType.WarHeavy, "goThere",
 						String.valueOf(w.getDistance()), String.valueOf(w.getAngle()));
 				me.setDebugStringColor(Color.RED);
-				me.setDebugString("Angle cible : "+w.getAngle());
+				me.setDebugString("BASE FOUNDED ! Target angle : "+w.getAngle());
 				return true;
 			}
 		}
