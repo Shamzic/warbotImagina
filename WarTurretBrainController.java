@@ -1,4 +1,4 @@
-package myteam;
+package pikashot;
 
 import edu.warbot.agents.agents.WarTurret;
 import edu.warbot.agents.percepts.WarAgentPercept;

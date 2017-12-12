@@ -1,4 +1,4 @@
-package myteam;
+package pikashot;
 
 import edu.warbot.agents.enums.WarAgentType;
 import edu.warbot.agents.percepts.WarAgentPercept;

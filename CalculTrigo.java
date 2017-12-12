@@ -1,4 +1,4 @@
-package myteam;
+package pikashot;
 
 public class CalculTrigo {
 	public static double distanceObjMe(double DistanceExpeMe,double AngleExpeMe,double DistanceExpeObj,double AngleExpeObj){

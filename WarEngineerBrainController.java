@@ -1,4 +1,4 @@
-package myteam;
+package pikashot;
 
 import edu.warbot.agents.agents.WarEngineer;
 import edu.warbot.brains.brains.WarEngineerBrain;

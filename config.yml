@@ -1,9 +1,9 @@
-Name: MyTeam
-IconPath: MyTeam.png
-SoundPath: MyTeam.wav
+Name: pikashot
+IconPath: pikashot_picture.jpg
+SoundPath:
 Description: |
     Descriptions de mon équipe
-BrainsPackage: myteam
+BrainsPackage: pikashot
 AgentsBrainClasses:
     WarBase: WarBaseBrainController
     WarExplorer: WarExplorerBrainController

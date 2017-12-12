@@ -18,7 +18,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package myteam;
+package pikashot;
 
 
 /** Encapsulates a 2D vector. Allows chaining methods by returning a reference to itself
