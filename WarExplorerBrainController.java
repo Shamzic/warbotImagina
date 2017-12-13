@@ -63,6 +63,7 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	@Override
 	public String action() {
 		String toReturn = ctask.exec(this);   // le run de la FSM
+		broadcastMessageToAgentType(WarAgentType.WarBase,"He is alive","");
 		if(toReturn == null)
 		{
 			if (isBlocked())
@@ -163,8 +164,11 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 					{
 						me.setDebugString("MIAM");
 						me.setHeading(agtPcpt.getAngle());
-						if(agtPcpt.getDistance()<WarFood.MAX_DISTANCE_TAKE)	
+						if(agtPcpt.getDistance()<WarFood.MAX_DISTANCE_TAKE)
+						{	
+							me.broadcastMessageToAgentType(WarAgentType.WarBase, "Food here", Double.toString(agtPcpt.getDistance()), Double.toString(agtPcpt.getAngle()));
 							return WarExplorer.ACTION_TAKE;
+						}
 						else
 							return WarExplorer.ACTION_MOVE;
 					}

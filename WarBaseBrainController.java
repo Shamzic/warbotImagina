@@ -24,10 +24,18 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 	ArrayList<Double[]> TurretPos = new ArrayList<Double[]>();
 	WTask ctask; // FSM
 	ArrayList<WarAgentType> agentListInit = new ArrayList<WarAgentType>();
+	boolean ingenieur = false;
 	
     public WarBaseBrainController() {
         super();
         ctask = listen;
+        agentListInit.add(WarAgentType.WarExplorer);
+        agentListInit.add(WarAgentType.WarExplorer);
+        agentListInit.add(WarAgentType.WarLight);
+        agentListInit.add(WarAgentType.WarLight);
+        agentListInit.add(WarAgentType.WarLight);
+        agentListInit.add(WarAgentType.WarHeavy);
+        agentListInit.add(WarAgentType.WarHeavy);
     }
     
     
@@ -37,15 +45,22 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 			WarBaseBrainController me = (WarBaseBrainController) bc;
 			WarMessage m = me.getMessageFromExplorer();
 			m = me.getMessageFromFighter();
-			addAgent(me,WarAgentType.WarLight,5);
-			//addAgent(me,WarAgentType.WarExplorer,5);
-			addAgent(me,WarAgentType.WarHeavy,5);
 			while(me.agentListInit.size() != 0 && me.getNbElementsInBag() >= 0 && me.getHealth() >= 0.3 * me.getMaxHealth())
 			{
 				me.setNextAgentToCreate(me.agentListInit.get(0));
 				me.agentListInit.remove(0);
 				return WarBase.ACTION_CREATE;
 			}
+			if(!me.ingenieur && me.FoodPos.size() > 1) {
+				me.ingenieur = true;
+				addAgent(me,WarAgentType.WarEngineer,1);
+			}
+			if(me.OppBasePos[0] != -1) {
+				addAgent(me,WarAgentType.WarHeavy,2);
+				addAgent(me,WarAgentType.WarRocketLauncher,1);
+			}
+			if(me.getNbElementsInBag() >= 0 && me.getHealth() < 0.8 * me.getMaxHealth())
+				return ACTION_EAT;
 			return ACTION_IDLE;
 		}
 	};
@@ -81,6 +96,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
     }
     
 	private WarMessage getMessageFromExplorer() {
+		int nbExp = 0;
 		for (WarMessage m : getMessages()) {
 			String[] listC = m.getContent();
 			if(m.getMessage().equals("Food here") && m.getSenderType().equals(WarAgentType.WarExplorer))
@@ -99,6 +115,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 				}
 				ActualFoodZone[0] /= FoodPos.size();
 				ActualFoodZone[1] /= FoodPos.size();
+				setDebugString("pos " + ActualFoodZone[0] +" " + ActualFoodZone[1]);
 			}
 			if(m.getMessage().equals("Turret here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
 				Double[] TurretFood = {0.0,0.0};
@@ -118,11 +135,17 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 				reply(m,"I'm here","");
 				setDebugString("I'm here");
 			}
+			if(m.getMessage().equals("He is alive") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+				nbExp++;
+			}
 			if(m.getMessage().equals("Where is the food ?")){
 				if(ActualFoodZone[0] != -1)
 					reply(m,"Food here",Double.toString(ActualFoodZone[0]),Double.toString(ActualFoodZone[1]));
+					setDebugString("pos " + ActualFoodZone[0] +" " + ActualFoodZone[1]);
 			}
 		}
+		if(nbExp < 5)
+			agentListInit.add(WarAgentType.WarExplorer);
 		return null;
 	}
 	
