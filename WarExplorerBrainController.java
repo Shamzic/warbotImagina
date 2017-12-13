@@ -40,7 +40,11 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	private WarAgentPercept target = null;
 	private int angleSkirt;
 	private boolean montee;
-	private WTask previousState = null;
+	private WTask previousState =  new WTask(){ 
+		String exec(WarBrain bc){
+			return "";
+		}
+	};
 
 	static WTask handleMsgs = new WTask(){ 
 		String exec(WarBrain bc){
@@ -51,6 +55,8 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
 	public WarExplorerBrainController() {
 		super();
+        this.angleSkirt = 90;
+        this.montee=true;
 		ctask = searchFoodTask; // initialisation de la FSM
 	}
 
@@ -119,11 +125,8 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	static WTask searchFoodTask = new WTask(){
 		String exec(WarBrain bc){
 			WarExplorerBrainController me = (WarExplorerBrainController) bc;
-			if(ennemiBaseDetection(me)) 
-			{
-				me.setHeading((me.getHeading()+180)%360);
-				return WarExplorer.ACTION_MOVE;
-			}
+
+			detectedEnnemi(me);
 
 			if(me.isBagFull())
 			{
@@ -133,7 +136,6 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
 			if(me.isBlocked())
 				me.setRandomHeading();
-			/* Ajout 12/12/17 */
 			
 			ArrayList<WarAgentPercept> basePercepts = (ArrayList<WarAgentPercept>) me.getPerceptsAlliesByType(WarAgentType.WarBase);
 			if(basePercepts != null && basePercepts.size() !=0) {
@@ -146,11 +148,9 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 				double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
 				me.setHeading(Tetac);
 			}
-			
-			/* fin ajout  */
 
 			me.setDebugStringColor(Color.BLACK);
-			me.setDebugString("Searching foooood");
+			me.setDebugString("Searching food ... :( ");
 
 
 			ArrayList<WarAgentPercept> percepts = (ArrayList<WarAgentPercept>) me.getPercepts();
@@ -168,7 +168,6 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 						else
 							return WarExplorer.ACTION_MOVE;
 					}
-
 				default:
 					break;
 				}
@@ -188,21 +187,21 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 			return null;
 		}
 	};
-
-
-	static boolean ennemiBaseDetection(WarExplorerBrainController me){
+	
+	
+	static boolean detectedEnnemi(WarExplorerBrainController me) {
+		me.setDebugString("fucking ennemi detected");	
+		
 		for (WarAgentPercept w :  me.getPerceptsEnemies()) 
 		{
 			if (w.getType().equals(WarAgentType.WarBase))
 			{
-				//System.out.println("Base detected");
-				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Base here",
-						String.valueOf(w.getDistance()), String.valueOf(w.getAngle()));
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Base here",String.valueOf(w.getDistance()), String.valueOf(w.getAngle()));
 				me.setDebugStringColor(Color.RED);
 				me.setDebugString("BASE FOUNDED ! Target angle : "+w.getAngle());
 				return true;
 			}
-			else if (w.getType().equals(WarAgentType.WarLight) || w.getType().equals(WarAgentType.WarTurret) || w.getType().equals(WarAgentType.WarHeavy))
+			if (w.getType().equals(WarAgentType.WarLight) || w.getType().equals(WarAgentType.WarTurret) || w.getType().equals(WarAgentType.WarHeavy))
 			{
 				me.previousState = me.ctask;
 				//me.ctask= skirtEnnemiInCircle; 
@@ -214,20 +213,22 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	static WTask skirtEnnemiInCircle = new WTask(){
 		String exec(WarBrain bc){
 			WarExplorerBrainController me = (WarExplorerBrainController) bc;
-			WarAgentPercept cibleToskirt = me.target;
+
+			WarAgentPercept cibleToskirt = me.getTarget();
+			me.setDebugString("cible skirt "+me.getTarget().getAngle());	
 			me.setHeading(CalculTrigo.LogicDegree(me.angleSkirt+cibleToskirt.getAngle()));
+			me.setDebugString("angle : "+CalculTrigo.LogicDegree(me.angleSkirt+cibleToskirt.getAngle()));	
 			if(me.montee)
 			{
 				me.angleSkirt--;
 				if(me.angleSkirt==0)
 					me.montee=false;
 			}
-			else	
+			else
 			{
 				me.angleSkirt=90;
 				me.montee=true;
-				me.previousState=null;
-				me.ctask= me.previousState; 
+				me.ctask= searchFoodTask; 
 			}
 		return ACTION_MOVE;
 		}
@@ -250,8 +251,12 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 		broadcastMessageToAgentType(WarAgentType.WarBase, "Where are you?", "");
 		return null;
 	}
-
-
-
 	
+	public void setTarget(WarAgentPercept wb) {
+		this.target = wb;
+	}
+	public WarAgentPercept getTarget() {
+		return this.target;
+	}
+
 }
