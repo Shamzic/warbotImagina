@@ -171,6 +171,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 	            	if(wp.getType() == WarAgentType.WarBase)
 	            	{
 	            		me.setDebugString("Detected ennemi base");
+	            		me.broadcastMessageToAgentType(WarAgentType.WarBase,"Base here",Double.toString(wp.getDistance()),Double.toString(wp.getAngle()));
 		            	me.setTarget(wp);
 						me.ctask = attackEnnemiBase;
 						return true;

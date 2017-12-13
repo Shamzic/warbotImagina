@@ -165,14 +165,16 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 	            if (me.isEnemy(wp) && wp.getType().equals(warAgentType))
 	            {
 	            	me.setDebugStringColor(Color.orange.darker());
-	            	if(wp.getType() == WarAgentType.WarBase || wp.getType() == WarAgentType.WarTurret || wp.getType() == WarAgentType.WarRocketLauncher)
+	            	if(wp.getType() == WarAgentType.WarBase)
 	            	{
 	            		me.setDebugString("Detected ennemi base");
+	            		me.broadcastMessageToAgentType(WarAgentType.WarBase,"Base here",Double.toString(wp.getDistance()),Double.toString(wp.getAngle()));
 		            	me.setTarget(wp);
 						me.ctask = attackEnnemiBase;
 						return true;
 	            	}
-	            	else if(wp.getType() == WarAgentType.WarHeavy || wp.getType() == WarAgentType.WarLight || wp.getType() == WarAgentType.WarExplorer)
+	            	else if(wp.getType() == WarAgentType.WarHeavy || wp.getType() == WarAgentType.WarLight || 
+	            			wp.getType() == WarAgentType.WarExplorer || wp.getType() == WarAgentType.WarTurret || wp.getType() == WarAgentType.WarRocketLauncher)
 	            	{
 	            		me.setDebugString("Detected ennemi heavy");
 	            		me.setTarget(wp);

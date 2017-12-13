@@ -25,10 +25,12 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 	WTask ctask; // FSM
 	ArrayList<WarAgentType> agentListInit = new ArrayList<WarAgentType>();
 	boolean ingenieur = false;
+	int time;
 	
     public WarBaseBrainController() {
         super();
         ctask = listen;
+        time = 0;
         agentListInit.add(WarAgentType.WarExplorer);
         agentListInit.add(WarAgentType.WarExplorer);
         agentListInit.add(WarAgentType.WarLight);
@@ -56,8 +58,12 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 				addAgent(me,WarAgentType.WarEngineer,1);
 			}
 			if(me.OppBasePos[0] != -1) {
-				addAgent(me,WarAgentType.WarHeavy,2);
 				addAgent(me,WarAgentType.WarRocketLauncher,1);
+				addAgent(me,WarAgentType.WarHeavy,2);
+			}
+			if(me.time % 500 == 0 && me.time != 0) {
+				addAgent(me,WarAgentType.WarHeavy,2);
+				addAgent(me,WarAgentType.WarLight,1);
 			}
 			if(me.getNbElementsInBag() >= 0 && me.getHealth() < 0.8 * me.getMaxHealth())
 				return ACTION_EAT;
@@ -74,7 +80,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
     
     @Override
     public String action() {
-    	
+    	time++;
 		String toReturn = ctask.exec(this);   // le run de la FSM
 		
 		if(toReturn == null){
@@ -125,7 +131,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
 				TurretPos.add(TurretFood);
 			}
-			if(m.getMessage().equals("Base here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+			if(m.getMessage().equals("Base here")){
 				OppBasePos[0] = CalculTrigo.distanceObjMe(m.getDistance(), m.getAngle(),
 						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
 				OppBasePos[1] = CalculTrigo.angleObjMe(m.getDistance(), m.getAngle(),

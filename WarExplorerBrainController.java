@@ -67,8 +67,8 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
 	@Override
 	public String action() {
-		String toReturn = ctask.exec(this);   // le run de la FSM
 		broadcastMessageToAgentType(WarAgentType.WarBase,"He is alive","");
+		String toReturn = ctask.exec(this);   // le run de la FSM
 		if(toReturn == null)
 		{
 			if (isBlocked())
@@ -141,24 +141,12 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
 			if(me.isBlocked())
 				me.setRandomHeading();
-			
 			ArrayList<WarAgentPercept> basePercepts = (ArrayList<WarAgentPercept>) me.getPerceptsAlliesByType(WarAgentType.WarBase);
 			if(basePercepts != null && basePercepts.size() !=0) {
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the food ?", "");
 			}
-			
-			WarMessage message = me.getMessageAboutFood();
-			if(message != null) {
-				String[] list = message.getContent();
-				double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
-				me.setHeading(Tetac);
-			}
-			
 			me.setDebugString("Searching food ");
-
-
 			ArrayList<WarAgentPercept> percepts = (ArrayList<WarAgentPercept>) me.getPercepts();
-
 			for ( WarAgentPercept agtPcpt : percepts)
 			{
 				switch(agtPcpt.getType()) {
