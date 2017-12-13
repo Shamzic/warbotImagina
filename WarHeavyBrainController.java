@@ -62,7 +62,16 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 				listenMessages(me); 
 				detectedEnnemi(me,WarAgentType.WarBase);
 				detectedEnnemi(me,WarAgentType.WarHeavy);
+				detectedEnnemi(me,WarAgentType.WarLight);
+				detectedEnnemi(me,WarAgentType.WarTurret);
+				detectedEnnemi(me,WarAgentType.WarExplorer);
+				detectedEnnemi(me,WarAgentType.WarRocketLauncher);
 				me.setDebugString("Waiting for instructions");
+				for(WarMessage m : me.getMessages()) {
+					if(m.getMessage() == "I need help" && m.getDistance() < 150) {
+						me.setHeading(CalculTrigo.angleObjMe(m.getDistance(),m.getAngle(),Double.parseDouble(m.getContent()[0]),Double.parseDouble(m.getContent()[1])));
+					}
+				}
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
 				if(me.isBlocked()){me.setRandomHeading();}
 				return WarHeavy.ACTION_MOVE;
@@ -97,6 +106,12 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 					return ACTION_FIRE;
 				}
 				if(detectedEnnemi(me,WarAgentType.WarLight)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarExplorer)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarRocketLauncher)) {
 					return ACTION_FIRE;
 				}
 				if(me.isBlocked())
@@ -150,14 +165,14 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 	            if (me.isEnemy(wp) && wp.getType().equals(warAgentType))
 	            {
 	            	me.setDebugStringColor(Color.orange.darker());
-	            	if(wp.getType() == WarAgentType.WarBase || wp.getType() == WarAgentType.WarTurret)
+	            	if(wp.getType() == WarAgentType.WarBase || wp.getType() == WarAgentType.WarTurret || wp.getType() == WarAgentType.WarRocketLauncher)
 	            	{
 	            		me.setDebugString("Detected ennemi base");
 		            	me.setTarget(wp);
 						me.ctask = attackEnnemiBase;
 						return true;
 	            	}
-	            	else if(wp.getType() == WarAgentType.WarHeavy || wp.getType() == WarAgentType.WarLight)
+	            	else if(wp.getType() == WarAgentType.WarHeavy || wp.getType() == WarAgentType.WarLight || wp.getType() == WarAgentType.WarExplorer)
 	            	{
 	            		me.setDebugString("Detected ennemi heavy");
 	            		me.setTarget(wp);

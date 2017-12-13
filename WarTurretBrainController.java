@@ -28,7 +28,7 @@ public abstract class WarTurretBrainController extends WarTurretBrain {
 
         List <WarAgentPercept> percepts = getPercepts();
         for (WarAgentPercept p : percepts) {
-        	if (isEnemy(p)) {
+        	if (isEnemy(p) && p.getType() != WarAgentType.WarFood) {
         		broadcastMessageToAgentType(WarAgentType.WarHeavy, "I need help",Double.toString(p.getDistance()),Double.toString(p.getAngle()));
         		broadcastMessageToAgentType(WarAgentType.WarHeavy, "I need help",Double.toString(p.getDistance()),Double.toString(p.getAngle()));
                 setHeading(p.getAngle());

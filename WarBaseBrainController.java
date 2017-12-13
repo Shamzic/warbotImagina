@@ -37,9 +37,9 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 			WarBaseBrainController me = (WarBaseBrainController) bc;
 			WarMessage m = me.getMessageFromExplorer();
 			m = me.getMessageFromFighter();
-			//addAgent(me,WarAgentType.WarLight,5);
+			addAgent(me,WarAgentType.WarLight,5);
 			//addAgent(me,WarAgentType.WarExplorer,5);
-			//addAgent(me,WarAgentType.WarHeavy,5);
+			addAgent(me,WarAgentType.WarHeavy,5);
 			while(me.agentListInit.size() != 0 && me.getNbElementsInBag() >= 0 && me.getHealth() >= 0.3 * me.getMaxHealth())
 			{
 				me.setNextAgentToCreate(me.agentListInit.get(0));

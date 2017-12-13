@@ -15,6 +15,7 @@ import edu.warbot.agents.resources.WarFood;
 import edu.warbot.brains.WarBrain;
 import edu.warbot.brains.brains.WarLightBrain;
 import edu.warbot.communications.WarMessage;
+import jogamp.common.os.elf.SectionHeader;
 
 @SuppressWarnings("unused")
 public abstract class WarLightBrainController extends  WarLightBrain {
@@ -45,7 +46,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			{
 				if (isBlocked())
 					setRandomHeading();
-				setDebugString("Heavy waitinggg ...");
+				setDebugString("Iron Maiden ...");
 				
 				return WarLight.ACTION_MOVE;
 			} 
@@ -62,8 +63,18 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 				WarLightBrainController me = (WarLightBrainController) bc;
 				listenMessages(me); 
 				detectedEnnemi(me,WarAgentType.WarBase);
+				detectedEnnemi(me,WarAgentType.WarHeavy);
 				detectedEnnemi(me,WarAgentType.WarLight);
+				detectedEnnemi(me,WarAgentType.WarTurret);
+				detectedEnnemi(me,WarAgentType.WarExplorer);
+				detectedEnnemi(me,WarAgentType.WarRocketLauncher);
+				detectedEnnemi(me,WarAgentType.WarEngineer);
 				me.setDebugString("Waiting for instructions");
+				for(WarMessage m : me.getMessages()) {
+					if(m.getMessage() == "I need help" && m.getDistance() < 150) {
+						me.setHeading(CalculTrigo.angleObjMe(m.getDistance(),m.getAngle(),Double.parseDouble(m.getContent()[0]),Double.parseDouble(m.getContent()[1])));
+					}
+				}
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
 				if(me.isBlocked()){me.setRandomHeading();}
 				return WarLight.ACTION_MOVE;
@@ -98,6 +109,12 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 					return ACTION_FIRE;
 				}
 				if(detectedEnnemi(me,WarAgentType.WarLight)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarExplorer)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarRocketLauncher)) {
 					return ACTION_FIRE;
 				}
 				if(me.isBlocked())
@@ -158,7 +175,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 						me.ctask = attackEnnemiBase;
 						return true;
 	            	}
-	            	else if(wp.getType() == WarAgentType.WarLight)
+	            	else if(wp.getType() == WarAgentType.WarLight || wp.getType() == WarAgentType.WarExplorer || wp.getType() == WarAgentType.WarRocketLauncher)
 	            	{
 	            		me.setDebugString("Detected ennemi heavy");
 	            		me.setTarget(wp);
@@ -183,7 +200,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 				me.setHeading(CalculTrigo.LogicDegree(me.angleSkirt+cibleToskirt.getAngle()));
 				if(me.montee)
 				{
-					me.angleSkirt--;
+					me.angleSkirt-=0.5;
 					if(me.angleSkirt==0)
 						me.montee=false;
 				}
