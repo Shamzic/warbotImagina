@@ -63,6 +63,7 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 				detectedEnnemi(me,WarAgentType.WarBase);
 				detectedEnnemi(me,WarAgentType.WarHeavy);
 				me.setDebugString("Waiting for instructions");
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
 				if(me.isBlocked()){me.setRandomHeading();}
 				return WarHeavy.ACTION_MOVE;
 			}
@@ -78,7 +79,7 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 				WarMessage message = me.getWarMessage();
 				String[] list = message.getContent();
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
-				if(message.getMessage().equals("goThere"))
+				if(message.getMessage().equals("Base here"))
 				{
 					double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
 					me.setDebugString("PIKA .... "/*+Tetac*/);
