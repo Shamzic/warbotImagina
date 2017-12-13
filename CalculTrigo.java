@@ -4,11 +4,12 @@ public class CalculTrigo {
 	public static double distanceObjMe(double DistanceExpeMe,double AngleExpeMe,double DistanceExpeObj,double AngleExpeObj){
 		double xa = DistanceExpeMe*Math.cos(Math.toRadians(AngleExpeMe));
 		double ya = DistanceExpeMe*Math.sin(Math.toRadians(AngleExpeMe));
-		double xb = DistanceExpeMe*Math.cos(Math.toRadians(AngleExpeObj));
-		double yb = DistanceExpeMe*Math.sin(Math.toRadians(AngleExpeObj));
+		double xb = DistanceExpeObj*Math.cos(Math.toRadians(AngleExpeObj));
+		double yb = DistanceExpeObj*Math.sin(Math.toRadians(AngleExpeObj));
 		double xc = xa + xb;
 		double yc = ya + yb;
-		return Math.sqrt((xc*xc)+(yc*yc));
+		return Math.sqrt(Math.pow(xc,2) + Math.pow(yc,2));
+		//return Math.pow(DistanceExpeMe,2) + Math.pow(DistanceExpeObj,2) - 2*DistanceExpeMe*DistanceExpeObj*Math.cos(Math.toRadians(AngleExpeObj-AngleExpeMe));
 	}
 	
 	public static double angleObjMe(double DistanceExpeMe,double AngleExpeMe,double DistanceExpeObj,double AngleExpeObj){

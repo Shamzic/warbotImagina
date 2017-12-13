@@ -37,10 +37,10 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 			WarBaseBrainController me = (WarBaseBrainController) bc;
 			WarMessage m = me.getMessageFromExplorer();
 			m = me.getMessageFromFighter();
-			addAgent(me,WarAgentType.WarLight,5);
-			addAgent(me,WarAgentType.WarExplorer,5);
-			addAgent(me,WarAgentType.WarHeavy,5);
-			while(me.getNbElementsInBag() >= 0 && me.getHealth() >= 0.3 * me.getMaxHealth())
+			//addAgent(me,WarAgentType.WarLight,5);
+			//addAgent(me,WarAgentType.WarExplorer,5);
+			//addAgent(me,WarAgentType.WarHeavy,5);
+			while(me.agentListInit.size() != 0 && me.getNbElementsInBag() >= 0 && me.getHealth() >= 0.3 * me.getMaxHealth())
 			{
 				me.setNextAgentToCreate(me.agentListInit.get(0));
 				me.agentListInit.remove(0);
@@ -109,7 +109,6 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 				TurretPos.add(TurretFood);
 			}
 			if(m.getMessage().equals("Base here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
-
 				OppBasePos[0] = CalculTrigo.distanceObjMe(m.getDistance(), m.getAngle(),
 						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
 				OppBasePos[1] = CalculTrigo.angleObjMe(m.getDistance(), m.getAngle(),

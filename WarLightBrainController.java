@@ -7,6 +7,7 @@ import java.util.List;
 import org.jfree.data.statistics.MeanAndStandardDeviation;
 
 import edu.warbot.agents.agents.WarExplorer;
+import edu.warbot.agents.agents.WarHeavy;
 import edu.warbot.agents.agents.WarLight;
 import edu.warbot.agents.enums.WarAgentType;
 import edu.warbot.agents.percepts.WarAgentPercept;
@@ -76,14 +77,16 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 		static WTask rushToTheEnnemiBase = new WTask(){
 			String exec(WarBrain bc){
 				WarLightBrainController me = (WarLightBrainController) bc;
-				WarMessage message = me.getWarMessage();
-				String[] list = message.getContent();
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
-				if(message.getMessage().equals("Base here"))
+				for(WarMessage message : me.getMessages())
 				{
-					double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
-					me.setDebugString("PIKA .... "/*+Tetac*/);
-					me.setHeading(Tetac);
+					String[] list = message.getContent();
+					if(message.getMessage().equals("Base here"))
+					{
+						double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
+						me.setDebugString("PIKA .... "/*+Tetac*/);
+						me.setHeading(Tetac);
+					}
 				}
 				if(detectedEnnemi(me,WarAgentType.WarTurret)) {
 					return ACTION_FIRE;
@@ -91,9 +94,15 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 				if(detectedEnnemi(me,WarAgentType.WarBase)) {
 					return ACTION_FIRE;
 				}
+				if(detectedEnnemi(me,WarAgentType.WarHeavy)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarLight)) {
+					return ACTION_FIRE;
+				}
 				if(me.isBlocked())
 					me.setRandomHeading();
-				return WarLight.ACTION_MOVE;
+				return WarHeavy.ACTION_MOVE;
 			}
 		};
 		
@@ -160,6 +169,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 	            		me.setDebugString("Detected ennemi heavy");
 	            		me.setTarget(wp);
 	            		me.ctask = skirtEnnemiInCircle;
+	            		return true;
 	            	}
 	            }
 			}

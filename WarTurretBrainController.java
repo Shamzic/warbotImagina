@@ -1,6 +1,7 @@
 package pikashot;
 
 import edu.warbot.agents.agents.WarTurret;
+import edu.warbot.agents.enums.WarAgentType;
 import edu.warbot.agents.percepts.WarAgentPercept;
 import edu.warbot.brains.brains.WarTurretBrain;
 
@@ -28,6 +29,8 @@ public abstract class WarTurretBrainController extends WarTurretBrain {
         List <WarAgentPercept> percepts = getPercepts();
         for (WarAgentPercept p : percepts) {
         	if (isEnemy(p)) {
+        		broadcastMessageToAgentType(WarAgentType.WarHeavy, "I need help",Double.toString(p.getDistance()),Double.toString(p.getAngle()));
+        		broadcastMessageToAgentType(WarAgentType.WarHeavy, "I need help",Double.toString(p.getDistance()),Double.toString(p.getAngle()));
                 setHeading(p.getAngle());
                 if (isReloaded()) {
                     return WarTurret.ACTION_FIRE;

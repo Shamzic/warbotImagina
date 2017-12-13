@@ -258,5 +258,4 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	public WarAgentPercept getTarget() {
 		return this.target;
 	}
-
 }
