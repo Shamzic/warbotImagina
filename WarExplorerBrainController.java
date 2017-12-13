@@ -40,11 +40,14 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	private WarAgentPercept target = null;
 	private int angleSkirt;
 	private boolean montee;
-	private WTask previousState =  new WTask(){ 
-		String exec(WarBrain bc){
-			return "";
-		}
-	};
+	private double headingSave;
+	private double minFoodDistance;
+	
+	final int SKIRT_MAX = 90;
+	final int SKIRT_PROGRESSION = 5;
+	final int DEG_MIN = 0;
+	final int DEG_MAX = 360;
+	
 
 	static WTask handleMsgs = new WTask(){ 
 		String exec(WarBrain bc){
@@ -55,8 +58,10 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 
 	public WarExplorerBrainController() {
 		super();
-        this.angleSkirt = 90;
+        this.angleSkirt = SKIRT_MAX;
         this.montee=true;
+        this.headingSave=0;
+        this.minFoodDistance=10000;
 		ctask = searchFoodTask; // initialisation de la FSM
 	}
 
@@ -126,7 +131,6 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	static WTask searchFoodTask = new WTask(){
 		String exec(WarBrain bc){
 			WarExplorerBrainController me = (WarExplorerBrainController) bc;
-
 			detectedEnnemi(me);
 
 			if(me.isBagFull())
@@ -149,9 +153,8 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 				double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
 				me.setHeading(Tetac);
 			}
-
-			me.setDebugStringColor(Color.BLACK);
-			me.setDebugString("Searching food ... :( ");
+			
+			me.setDebugString("Searching food ");
 
 
 			ArrayList<WarAgentPercept> percepts = (ArrayList<WarAgentPercept>) me.getPercepts();
@@ -167,6 +170,7 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 						if(agtPcpt.getDistance()<WarFood.MAX_DISTANCE_TAKE)
 						{	
 							me.broadcastMessageToAgentType(WarAgentType.WarBase, "Food here", Double.toString(agtPcpt.getDistance()), Double.toString(agtPcpt.getAngle()));
+
 							return WarExplorer.ACTION_TAKE;
 						}
 						else
@@ -179,22 +183,9 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 			return WarExplorer.ACTION_MOVE;
 		}
 	};
-
-
-	static WTask runnawayTask = new WTask(){
-		String exec(WarBrain bc){
-			WarExplorerBrainController me = (WarExplorerBrainController) bc;
-			me.setDebugStringColor(Color.PINK);
-			me.setDebugString("Mamamia this is an ennemi !!!");
-			me.setHeading(180+me.getHeading()); // strategic retreat !!!
-			me.ctask = searchFoodTask;
-			return null;
-		}
-	};
 	
 	
 	static boolean detectedEnnemi(WarExplorerBrainController me) {
-		me.setDebugString("fucking ennemi detected");	
 		
 		for (WarAgentPercept w :  me.getPerceptsEnemies()) 
 		{
@@ -205,10 +196,11 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 				me.setDebugString("BASE FOUNDED ! Target angle : "+w.getAngle());
 				return true;
 			}
-			if (w.getType().equals(WarAgentType.WarLight) || w.getType().equals(WarAgentType.WarTurret) || w.getType().equals(WarAgentType.WarHeavy))
+			else if (w.getType().equals(WarAgentType.WarLight) || w.getType().equals(WarAgentType.WarTurret) || w.getType().equals(WarAgentType.WarHeavy))
 			{
-				me.previousState = me.ctask;
-				//me.ctask= skirtEnnemiInCircle; 
+				me.setDebugStringColor(Color.BLUE);
+				me.headingSave=me.getHeading();
+				me.ctask = skirtEnnemiInCircle;
 			}
 		}
 		return false;
@@ -217,23 +209,31 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	static WTask skirtEnnemiInCircle = new WTask(){
 		String exec(WarBrain bc){
 			WarExplorerBrainController me = (WarExplorerBrainController) bc;
-
-			WarAgentPercept cibleToskirt = me.getTarget();
-			me.setDebugString("cible skirt "+me.getTarget().getAngle());	
-			me.setHeading(CalculTrigo.LogicDegree(me.angleSkirt+cibleToskirt.getAngle()));
-			me.setDebugString("angle : "+CalculTrigo.LogicDegree(me.angleSkirt+cibleToskirt.getAngle()));	
+			
+			for (WarAgentPercept w :  me.getPerceptsEnemies()) 
+			{
+				if (w.getType().equals(WarAgentType.WarLight) || w.getType().equals(WarAgentType.WarTurret) || w.getType().equals(WarAgentType.WarHeavy))
+					me.headingSave=me.getHeading();
+			}
+			double newAngle = me.angleSkirt+me.headingSave;
+			if(newAngle>me.DEG_MAX)
+				while(newAngle>me.DEG_MAX)
+					newAngle-=me.DEG_MAX;
+			me.setHeading(newAngle);
 			if(me.montee)
 			{
-				me.angleSkirt--;
+				me.angleSkirt-=me.SKIRT_PROGRESSION;
 				if(me.angleSkirt==0)
 					me.montee=false;
 			}
-			else
+			else	
 			{
-				me.angleSkirt=90;
+				me.angleSkirt=me.SKIRT_MAX;
 				me.montee=true;
 				me.ctask= searchFoodTask; 
 			}
+			if(me.isBlocked())
+				me.setRandomHeading();
 		return ACTION_MOVE;
 		}
 	};	

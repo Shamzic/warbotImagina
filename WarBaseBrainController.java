@@ -51,7 +51,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 				me.agentListInit.remove(0);
 				return WarBase.ACTION_CREATE;
 			}
-			if(!me.ingenieur && me.FoodPos.size() > 1) {
+			if(!me.ingenieur && me.FoodPos.size() > 3) {
 				me.ingenieur = true;
 				addAgent(me,WarAgentType.WarEngineer,1);
 			}
