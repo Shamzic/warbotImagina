@@ -162,7 +162,6 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 	            		me.setTarget(wp);
 	            		me.ctask = skirtEnnemiInCircle;
 	            	}
-	         
 	            }
 			}
 			return false;
@@ -189,11 +188,6 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			}
 		};
 		
-		public static void skirt(WarLightBrainController me, WarAgentPercept wp) {
-			wp.getDistance();
-			me.setHeading(wp.getAngle());
-			me.ctask = attackEnnemiBase;
-		}
 
 		public void setWarMessage(WarMessage wm) {
 			this.wm= wm;
