@@ -91,7 +91,6 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 				if(detectedEnnemi(me,WarAgentType.WarBase)) {
 					return ACTION_FIRE;
 				}
-				listenMessages(me);
 				if(me.isBlocked())
 					me.setRandomHeading();
 				return WarLight.ACTION_MOVE;
@@ -106,21 +105,20 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			String exec(WarBrain bc){
 				WarLightBrainController me = (WarLightBrainController) bc;
 				detectedEnnemi(me,WarAgentType.WarBase);
-				if(me.getTarget()!=null)
-				{
+				for (WarAgentPercept wp : me.getPerceptsEnemies()) 
+				{	if(wp.getType() != WarAgentType.WarFood) 
+					{
 					me.setDebugString("SHOT !");	
-					me.setHeading(me.getTarget().getAngle());
+					me.setHeading(wp.getAngle());
 		             if (me.isReloaded())
 		                 return ACTION_FIRE;
 		             else if (me.isReloading())
 		                 return ACTION_IDLE;
 		             else
 		                 return ACTION_RELOAD;
+					}
 				}
-				else
-				{
-					me.ctask = waitForInstruction;
-				}
+				me.ctask = waitForInstruction;
 				return ACTION_IDLE;
 			}
 		};
