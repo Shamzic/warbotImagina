@@ -89,7 +89,7 @@ public abstract class WarRocketLauncherBrainController extends WarRocketLauncher
 			WarRocketLauncherBrainController me = (WarRocketLauncherBrainController) bc;
 			me.setDebugString("FIRE !");	
              if (me.isReloaded()) {
-            	 me.setTargetDistance(150);
+            	 me.setTargetDistance(me.OppDistance);
                  return ACTION_FIRE;
              }
              else if (me.isReloading()) {      	 

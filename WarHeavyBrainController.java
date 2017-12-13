@@ -76,19 +76,27 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 		static WTask rushToTheEnnemiBase = new WTask(){
 			String exec(WarBrain bc){
 				WarHeavyBrainController me = (WarHeavyBrainController) bc;
-				WarMessage message = me.getWarMessage();
-				String[] list = message.getContent();
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
-				if(message.getMessage().equals("Base here"))
+				for(WarMessage message : me.getMessages())
 				{
-					double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
-					me.setDebugString("PIKA .... "/*+Tetac*/);
-					me.setHeading(Tetac);
+					String[] list = message.getContent();
+					if(message.getMessage().equals("Base here"))
+					{
+						double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
+						me.setDebugString("PIKA .... "/*+Tetac*/);
+						me.setHeading(Tetac);
+					}
 				}
 				if(detectedEnnemi(me,WarAgentType.WarTurret)) {
 					return ACTION_FIRE;
 				}
 				if(detectedEnnemi(me,WarAgentType.WarBase)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarHeavy)) {
+					return ACTION_FIRE;
+				}
+				if(detectedEnnemi(me,WarAgentType.WarLight)) {
 					return ACTION_FIRE;
 				}
 				if(me.isBlocked())
@@ -142,7 +150,7 @@ public abstract class WarHeavyBrainController extends  WarHeavyBrain {
 	            if (me.isEnemy(wp) && wp.getType().equals(warAgentType))
 	            {
 	            	me.setDebugStringColor(Color.orange.darker());
-	            	if(wp.getType() == WarAgentType.WarBase || wp.getType() == WarAgentType.WarBase)
+	            	if(wp.getType() == WarAgentType.WarBase || wp.getType() == WarAgentType.WarTurret)
 	            	{
 	            		me.setDebugString("Detected ennemi base");
 		            	me.setTarget(wp);
