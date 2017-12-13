@@ -24,7 +24,7 @@ import myteam.CalculTrigo;
  * Un max de commentaire BIEN ECRITS ET UTILES
  * A rendre : sources + jar
  * 
- * Comportements à implémenter :
+ * Comportements �  implémenter :
  * - Récupérer liste de bases ennemies
  * - Explorateur esquive tous les agents ennemis autres que explorateur
  * - 
@@ -203,9 +203,8 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 			}
 			if (w.getType().equals(WarAgentType.WarLight) || w.getType().equals(WarAgentType.WarTurret) || w.getType().equals(WarAgentType.WarHeavy))
 			{
-				me.setTarget(w);
-				me.setDebugString("skirt1");
-				me.ctask= skirtEnnemiInCircle; 
+				me.previousState = me.ctask;
+				//me.ctask= skirtEnnemiInCircle; 
 			}
 		}
 		return false;
@@ -253,11 +252,11 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 		return null;
 	}
 	
-
 	public void setTarget(WarAgentPercept wb) {
 		this.target = wb;
 	}
 	public WarAgentPercept getTarget() {
 		return this.target;
 	}
+
 }
