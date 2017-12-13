@@ -63,6 +63,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 				detectedEnnemi(me,WarAgentType.WarBase);
 				detectedEnnemi(me,WarAgentType.WarLight);
 				me.setDebugString("Waiting for instructions");
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
 				if(me.isBlocked()){me.setRandomHeading();}
 				return WarLight.ACTION_MOVE;
 			}
@@ -78,7 +79,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 				WarMessage message = me.getWarMessage();
 				String[] list = message.getContent();
 				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where is the base ?", "");
-				if(message.getMessage().equals("goThere"))
+				if(message.getMessage().equals("Base here"))
 				{
 					double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
 					me.setDebugString("PIKA .... "/*+Tetac*/);
@@ -90,7 +91,6 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 				if(detectedEnnemi(me,WarAgentType.WarBase)) {
 					return ACTION_FIRE;
 				}
-				listenMessages(me);
 				if(me.isBlocked())
 					me.setRandomHeading();
 				return WarLight.ACTION_MOVE;
@@ -105,21 +105,20 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			String exec(WarBrain bc){
 				WarLightBrainController me = (WarLightBrainController) bc;
 				detectedEnnemi(me,WarAgentType.WarBase);
-				if(me.getTarget()!=null)
-				{
+				for (WarAgentPercept wp : me.getPerceptsEnemies()) 
+				{	if(wp.getType() != WarAgentType.WarFood) 
+					{
 					me.setDebugString("SHOT !");	
-					me.setHeading(me.getTarget().getAngle());
+					me.setHeading(wp.getAngle());
 		             if (me.isReloaded())
 		                 return ACTION_FIRE;
 		             else if (me.isReloading())
 		                 return ACTION_IDLE;
 		             else
 		                 return ACTION_RELOAD;
+					}
 				}
-				else
-				{
-					me.ctask = waitForInstruction;
-				}
+				me.ctask = waitForInstruction;
 				return ACTION_IDLE;
 			}
 		};
@@ -128,7 +127,7 @@ public abstract class WarLightBrainController extends  WarLightBrain {
 			List<WarMessage> messages = me.getMessages();
 			for (WarMessage message : messages) 
 			{
-				if (message.getMessage().equals("goThere"))
+				if (message.getMessage().equals("Base here"))
 				{
 					me.setWarMessage(message);
 					me.ctask = rushToTheEnnemiBase;

@@ -21,6 +21,7 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 	Double[] OppBasePos = {-1.0,-1.0};
 	Double[] ActualFoodZone = {-1.0,-1.0};
 	ArrayList<Double[]> FoodPos = new ArrayList<Double[]>();
+	ArrayList<Double[]> TurretPos = new ArrayList<Double[]>();
 	WTask ctask; // FSM
 	ArrayList<WarAgentType> agentListInit = new ArrayList<WarAgentType>();
 	
@@ -99,8 +100,16 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 				ActualFoodZone[0] /= FoodPos.size();
 				ActualFoodZone[1] /= FoodPos.size();
 			}
-			if(m.getMessage().equals("Base here") && m.getSenderType().equals(WarAgentType.WarExplorer))
-			{
+			if(m.getMessage().equals("Turret here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+				Double[] TurretFood = {0.0,0.0};
+				TurretFood[0] = CalculTrigo.distanceObjMe(m.getDistance(), m.getAngle(),
+						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
+				TurretFood[1] = CalculTrigo.angleObjMe(m.getDistance(), m.getAngle(),
+						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
+				TurretPos.add(TurretFood);
+			}
+			if(m.getMessage().equals("Base here") && m.getSenderType().equals(WarAgentType.WarExplorer)){
+
 				OppBasePos[0] = CalculTrigo.distanceObjMe(m.getDistance(), m.getAngle(),
 						Double.parseDouble(listC[0]), Double.parseDouble(listC[1]));
 				OppBasePos[1] = CalculTrigo.angleObjMe(m.getDistance(), m.getAngle(),
@@ -111,7 +120,8 @@ public abstract class WarBaseBrainController extends WarBaseBrain {
 				setDebugString("I'm here");
 			}
 			if(m.getMessage().equals("Where is the food ?")){
-				reply(m,"base here",Double.toString(ActualFoodZone[0]),Double.toString(ActualFoodZone[1]));
+				if(ActualFoodZone[0] != -1)
+					reply(m,"Food here",Double.toString(ActualFoodZone[0]),Double.toString(ActualFoodZone[1]));
 			}
 		}
 		return null;

@@ -94,8 +94,8 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 			if(basePercepts == null | basePercepts.size() == 0)
 			{
 				//j'envoie un message aux bases alliées pour savoir ou elles sont..
-				me.setDebugString("Where are you?");
-				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where are you?", "");
+				me.setDebugString("Where are you ?");
+				me.broadcastMessageToAgentType(WarAgentType.WarBase, "Where are you ?", "");
 				
 				WarMessage m = me.getMessageFromBase();
 				//Si j'ai un message de la base je vais vers elle
@@ -125,16 +125,17 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	static WTask searchFoodTask = new WTask(){
 		String exec(WarBrain bc){
 			WarExplorerBrainController me = (WarExplorerBrainController) bc;
+
 			detectedEnnemi(me);
+
 			if(me.isBagFull())
 			{
 				me.ctask = returnFoodTask;
-				return(null);
+				return ACTION_IDLE;
 			}
 
 			if(me.isBlocked())
 				me.setRandomHeading();
-			/* Ajout 12/12/17 */
 			
 			ArrayList<WarAgentPercept> basePercepts = (ArrayList<WarAgentPercept>) me.getPerceptsAlliesByType(WarAgentType.WarBase);
 			if(basePercepts != null && basePercepts.size() !=0) {
@@ -147,8 +148,6 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 				double Tetac = CalculTrigo.angleObjMe(message.getDistance(), message.getAngle(), Double.parseDouble(list[0]), Double.parseDouble(list[1]));
 				me.setHeading(Tetac);
 			}
-			
-			/* fin ajout  */
 
 			me.setDebugStringColor(Color.BLACK);
 			me.setDebugString("Searching food ... :( ");
@@ -169,7 +168,6 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 						else
 							return WarExplorer.ACTION_MOVE;
 					}
-
 				default:
 					break;
 				}
@@ -216,8 +214,9 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 	static WTask skirtEnnemiInCircle = new WTask(){
 		String exec(WarBrain bc){
 			WarExplorerBrainController me = (WarExplorerBrainController) bc;
-			me.setDebugString("skirt");	
+
 			WarAgentPercept cibleToskirt = me.getTarget();
+			me.setDebugString("cible skirt "+me.getTarget().getAngle());	
 			me.setHeading(CalculTrigo.LogicDegree(me.angleSkirt+cibleToskirt.getAngle()));
 			me.setDebugString("angle : "+CalculTrigo.LogicDegree(me.angleSkirt+cibleToskirt.getAngle()));	
 			if(me.montee)
@@ -259,6 +258,6 @@ public abstract class WarExplorerBrainController extends WarExplorerBrain  {
 		this.target = wb;
 	}
 	public WarAgentPercept getTarget() {
-		return target;
+		return this.target;
 	}
 }

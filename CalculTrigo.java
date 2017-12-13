@@ -18,7 +18,6 @@ public class CalculTrigo {
 		double yb = DistanceExpeObj*Math.sin(Math.toRadians(AngleExpeObj));
 		double xc = xa + xb;
 		double yc = ya + yb;
-		//System.out.print("AngleExpeMe : "+AngleExpeMe+", AngleExpeObj"+AngleExpeObj+", angle obtenu : "+LogicDegree(Math.toDegrees(Math.atan2(yc,xc))));
 		return LogicDegree(Math.toDegrees(Math.atan2(yc,xc)));
 	}
 	
